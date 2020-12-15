@@ -1,0 +1,112 @@
+# vim:syntax=apparmor
+
+#include <tunables/home>
+#include <tunables/proc>
+#include <tunables/kernelvars>
+#include <tunables/multiarch>
+
+/usr/bin/curl {
+
+  /etc/hosts r,
+  /etc/host.conf r,
+  /etc/resolv.conf r,
+  /etc/ld.so.cache r,
+  /etc/ssl/openssl.cnf r,
+  /etc/nsswitch.conf r,
+  /etc/gai.conf r,
+  /etc/locale.alias r,
+
+  /usr/{bin,sbin}/curl mr,
+
+  @{PROC}/sys/crypto/fips_enabled r,
+  owner @{PROC}/@{pid}/auxv r,
+
+  # Config file
+  @{HOME}/.curlrc r,
+
+  # Deny and do not log cpuinfo read requests because it contains CPU serial
+  deny @{PROC}/cpuinfo r,
+
+  # Adjust and uncomment to allow file reading
+  #/tmp/* r,           # Only files in this directory
+  #/tmp/somefile r,
+
+  # Adjust and uncomment to allow file saving
+  # /tmp/** w,
+  owner /tmp/** w,     # Allow to create and overwrite owned files
+
+  # Uncomment for *relaxed* shared library access and memory mapping
+  #/{,usr/}lib{,32,64,x32}/@{multiarch}/** mr,
+
+  /{,usr/}lib{,32,64,x32}/@{multiarch}/libnss_dns-*.so mr,
+  /{,usr/}lib{,32,64,x32}/@{multiarch}/libnss_files-*.so mr,
+  /{,usr/}lib{,32,64,x32}/@{multiarch}/libgssapi_krb5.so.* r,
+  /{,usr/}lib{,32,64,x32}/@{multiarch}/librtmp.so.* r,
+  /{,usr/}lib{,32,64,x32}/@{multiarch}/libc-*.so mr,
+  /{,usr/}lib{,32,64,x32}/@{multiarch}/libnghttp2.so.* mr,
+  /{,usr/}lib{,32,64,x32}/@{multiarch}/libpthread-*.so mr,
+  /{,usr/}lib{,32,64,x32}/@{multiarch}/libidn2.so.* mr,
+  /{,usr/}lib{,32,64,x32}/@{multiarch}/libcurl.so.* mr,
+  /{,usr/}lib{,32,64,x32}/@{multiarch}/libz.so.* mr,
+  /{,usr/}lib{,32,64,x32}/@{multiarch}/librtmp.so.* mr,
+  /{,usr/}lib{,32,64,x32}/@{multiarch}/libssh*.so.* mr,
+  /{,usr/}lib{,32,64,x32}/@{multiarch}/libpsl.so.* mr,
+  /{,usr/}lib{,32,64,x32}/@{multiarch}/libssl.so.* mr,
+  /{,usr/}lib{,32,64,x32}/@{multiarch}/libcrypto.so.* mr,
+  /{,usr/}lib{,32,64,x32}/@{multiarch}/libgcrypt.so.* mr,
+  /{,usr/}lib{,32,64,x32}/@{multiarch}/libkrb5.so.* mr,
+  /{,usr/}lib{,32,64,x32}/@{multiarch}/libgssapi_krb5.so.* mr,
+  /{,usr/}lib{,32,64,x32}/@{multiarch}/libk5crypto.so.* mr,
+  /{,usr/}lib{,32,64,x32}/@{multiarch}/libcom_err.so.* mr,
+  /{,usr/}lib{,32,64,x32}/@{multiarch}/libldap_r-*.so.* mr,
+  /{,usr/}lib{,32,64,x32}/@{multiarch}/liblber-*.so.* mr,
+  /{,usr/}lib{,32,64,x32}/@{multiarch}/libunistring.so.* mr,
+  /{,usr/}lib{,32,64,x32}/@{multiarch}/libgnutls.so.* mr,
+  /{,usr/}lib{,32,64,x32}/@{multiarch}/libhogweed.so.* mr,
+  /{,usr/}lib{,32,64,x32}/@{multiarch}/libnettle.so.* mr,
+  /{,usr/}lib{,32,64,x32}/@{multiarch}/libgmp.so.* mr,
+  /{,usr/}lib{,32,64,x32}/@{multiarch}/libdl-*.so mr,
+  /{,usr/}lib{,32,64,x32}/@{multiarch}/libkrb5support.so.* mr,
+  /{,usr/}lib{,32,64,x32}/@{multiarch}/libkeyutils.so.* mr,
+  /{,usr/}lib{,32,64,x32}/@{multiarch}/libresolv-*.so mr,
+  /{,usr/}lib{,32,64,x32}/@{multiarch}/libsasl2.so.* mr,
+  /{,usr/}lib{,32,64,x32}/@{multiarch}/libp11-kit.so.* mr,
+  /{,usr/}lib{,32,64,x32}/@{multiarch}/libtasn1.so.* mr,
+  /{,usr/}lib{,32,64,x32}/@{multiarch}/libgpg-error.so.* mr,
+  /{,usr/}lib{,32,64,x32}/@{multiarch}/libffi.so.* mr,
+  /{,usr/}lib{,32,64,x32}/@{multiarch}/libgcc_s.so.* mr,
+
+  /{,usr/}lib{,32,64,x32}/@{multiarch}/gconv/gconv-modules.cache r,
+  /{,usr/}lib{,32,64,x32}/locale/** r,
+
+  # Ubuntu-specific
+#  /{,usr/}lib{,32,64,x32}/@{multiarch}/libbrotlidec.so.* mr,
+#  /{,usr/}lib{,32,64,x32}/@{multiarch}/libgssapi.so.* mr,
+#  /{,usr/}lib{,32,64,x32}/@{multiarch}/libbrotlicommon.so.* mr,
+#  /{,usr/}lib{,32,64,x32}/@{multiarch}/libheimntlm.so.* mr,
+#  /{,usr/}lib{,32,64,x32}/@{multiarch}/libasn1.so.* mr,
+#  /{,usr/}lib{,32,64,x32}/@{multiarch}/libhcrypto.so.* mr,
+#  /{,usr/}lib{,32,64,x32}/@{multiarch}/libroken.so.* mr,
+#  /{,usr/}lib{,32,64,x32}/@{multiarch}/libwind.so.* mr,
+#  /{,usr/}lib{,32,64,x32}/@{multiarch}/libheimbase.so.* mr,
+#  /{,usr/}lib{,32,64,x32}/@{multiarch}/libhx509.so.* mr,
+#  /{,usr/}lib{,32,64,x32}/@{multiarch}/libsqlite3.so.* mr,
+#  /{,usr/}lib{,32,64,x32}/@{multiarch}/libcrypt.so.* mr,
+#  /{,usr/}lib{,32,64,x32}/@{multiarch}/libm-*.so mr,
+#  /{,usr/}lib{,32,64,x32}/@{multiarch}/libnss_mdns4_minimal.so.* mr,
+#  /{,usr/}lib{,32,64,x32}/@{multiarch}/libnss_mymachines.so.* mr,
+
+#  network inet dgram,
+#  network inet6 dgram,
+#  network inet stream,
+#  network inet6 stream,
+#  network netlink raw,
+
+#  unix (create) type=stream,
+
+  # Pi-hole
+#  capability dac_override,
+
+#  /etc/pihole/** rw,
+#  /var/local/pihole/** rw,   # Custom
+}
