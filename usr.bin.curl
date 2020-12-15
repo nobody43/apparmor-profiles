@@ -34,6 +34,9 @@
   # Adjust and uncomment to allow file saving
   # /tmp/** w,
   owner /tmp/** w,     # Allow to create and overwrite owned files
+  
+  /usr/share/zoneinfo/** r,
+  /usr/share/ca-certificates/** r,
 
   # Uncomment for *relaxed* shared library access and memory mapping
   #/{,usr/}lib{,32,64,x32}/@{multiarch}/** mr,
