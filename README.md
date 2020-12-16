@@ -1,24 +1,24 @@
 # apparmor-profiles
 ## Prerequisites
 
-```bash
+```
 # apt install apparmor-utils
 ```
 
 ## Installation
-```bash
+```
 # mv usr.bin.curl /etc/apparmor.d/
 # aa-enforce /etc/apparmor.d/usr.bin.curl
 ```
 
 ## Deinstallation
-```bash
+```
 # aa-disable /etc/apparmor.d/usr.bin.curl
 # rm /etc/apparmor.d/usr.bin.curl
 ```
 
 ## Testing
-```bash
+```
 # aa-complain /etc/apparmor.d/usr.bin.curl
 ```
 Error log is `/var/log/syslog` by default.
