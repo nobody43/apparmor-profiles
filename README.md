@@ -11,17 +11,18 @@
 # aa-enforce /etc/apparmor.d/usr.bin.curl
 ```
 
+## Testing
+```
+# aa-complain /etc/apparmor.d/usr.bin.curl
+```
+Error log is `/var/log/syslog` by default.
+
 ## Deinstallation
 ```
 # aa-disable /etc/apparmor.d/usr.bin.curl
 # rm /etc/apparmor.d/usr.bin.curl
 ```
 
-## Testing
-```
-# aa-complain /etc/apparmor.d/usr.bin.curl
-```
-Error log is `/var/log/syslog` by default.
 
 # curl
 Read-only version by default.
