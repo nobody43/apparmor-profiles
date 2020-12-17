@@ -21,16 +21,16 @@ Error log is `/var/log/syslog` by default.
 # aa-disable /etc/apparmor.d/usr.bin.curl
 # rm /etc/apparmor.d/usr.bin.curl
 ```
-
-# curl
+## Profiles
+### curl
 Read-only version by default.
 
 WARNING: custom applications might fail without adjustment!
 
-## Compatibility
+#### Compatibility
 - Pi-hole (commented out by default)
 
-# Supported systems
+## Supported systems
 
 - Debian 10
 - Armbian Buster
