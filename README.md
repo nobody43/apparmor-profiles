@@ -31,6 +31,9 @@ WARNING: custom applications might fail without adjustment!
 #### Compatibility
 - Pi-hole (commented out by default)
 
+### yadifa
+Slightly relaxed because of `base`. Without transfers.
+
 ## Supported systems
 
 - Debian 10
