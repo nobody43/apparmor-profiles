@@ -23,7 +23,7 @@ Error log is `/var/log/syslog` by default.
 ```
 
 ## Profiles
-### curl
+### [curl](https://github.com/nobodysu/apparmor-profiles/blob/master/usr.bin.curl)
 Read-only version by default.
 
 WARNING: custom applications might fail without adjustment!
@@ -36,7 +36,7 @@ WARNING: custom applications might fail without adjustment!
 - Armbian Buster
 - Ubuntu 20.04 (commented out by default)
 
-### yadifa
+### [yadifa](https://github.com/nobodysu/apparmor-profiles/blob/master/usr.bin.yadifa)
 Slightly relaxed because of `base`. Without transfers.
 
 #### Supported systems
