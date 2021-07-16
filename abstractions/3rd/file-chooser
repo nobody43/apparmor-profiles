@@ -1,0 +1,88 @@
+# vim:syntax=apparmor
+
+  #include <abstractions/dbus-strict>
+  #include <abstractions/3rd/nameservice-strict>
+
+  # list directory contents
+  / r,
+  /**/ r,
+
+  # noisy
+  /etc/fstab r,
+  deny @{HOME}/.cache/thumbnails/** r,
+
+  dbus send
+       bus="session"
+       path="/org/gtk/vfs/mounttracker"
+       interface="org.gtk.vfs.MountTracker"
+       member="{ListMounts2,LookupMount}"
+       peer=(name=":*"),
+
+  dbus receive
+       bus="session"
+       path="/org/gtk/vfs/mounttracker"
+       interface="org.gtk.vfs.MountTracker"
+       member="Mounted"
+       peer=(name=":*"),
+
+  # allow to mount; MountUnmount is too much
+  dbus send
+       bus="session"
+       path="/org/gtk/Private/RemoteVolumeMonitor"
+       interface="org.gtk.Private.RemoteVolumeMonitor"
+       member="{IsSupported,List,VolumeMount}"
+       peer=(name=":*"),
+
+  dbus receive
+       bus="session"
+       path="/org/gtk/Private/RemoteVolumeMonitor"
+       interface="org.gtk.Private.RemoteVolumeMonitor"
+       member="{MountAdded,VolumeChanged}"
+       peer=(name=":*"),
+
+  dbus send
+       bus="session"
+       path="/org/gtk/vfs/Daemon"
+       interface="org.gtk.vfs.Daemon"
+       member="{ListMonitorImplementations,GetConnection}"
+       peer=(name=":*"),
+
+  dbus send
+       bus="session"
+       path="/ca/desrt/dconf/Writer/user"
+       interface="ca.desrt.dconf.Writer"
+       member="Change"
+       peer=(name="ca.desrt.dconf"),
+
+  dbus receive
+       bus="session"
+       path="/ca/desrt/dconf/Writer/user"
+       interface="ca.desrt.dconf.Writer"
+       member="Notify"
+       peer=(name=":*"),
+
+  dbus send
+       bus="system"
+       path="/org/freedesktop/hostname[0-9]*"
+       interface="org.freedesktop.DBus.Properties"
+       member="GetAll"
+       peer=(name=":*"),
+
+  # Ubuntu
+  owner @{HOME}/.local/share/gvfs-metadata/*-????????.log r,
+
+  owner /{,var/}run/user/[0-9]*/gvfsd/socket-???????? rw,
+
+  dbus send
+       bus="session"
+       path="/org/gtk/vfs/mount/[0-9]*"
+       interface="org.gtk.vfs.Mount"
+       member="{QueryInfo,Enumerate,CreateFileMonitor}"
+       peer=(name=":*"),
+
+  dbus receive
+       bus="session"
+       path="/org/gtk/vfs/client/enumerator/[0-9]*"
+       interface="org.gtk.vfs.Enumerator"
+       member="{GotInfo,Done}"
+       peer=(name=":*"),

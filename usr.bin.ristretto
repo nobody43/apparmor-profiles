@@ -1,0 +1,151 @@
+# vim:syntax=apparmor
+
+abi <abi/3.0>,
+
+#include <tunables/global>
+
+# changeme; /home already included except dotfiles
+@{PIC_DIRS}=/usr/share /var/local /media /mnt /tmp
+
+profile ristretto /usr/bin/ristretto {
+  /usr/bin/ristretto r,
+  #include <abstractions/base>
+  #include <abstractions/dbus-session-strict>
+  #include <abstractions/dbus-accessibility-strict>
+  #include <abstractions/X>
+  #include <abstractions/fonts>
+  #include <abstractions/freedesktop.org>
+  #include <abstractions/private-files>
+  #include <abstractions/private-files-strict>
+
+  owner @{HOME}/{,[^.]*}{,/**}  r,  # home itself, not dotfiles, nested files
+        @{PIC_DIRS}/{,**} r,        # read
+        @{PIC_DIRS}/{,**} w,        # write (=delete)
+
+  deny /var/log/{,**} mrwkl,  # protect the logs
+
+  owner @{HOME}/.config/ristretto/{,**}      rwk,
+  owner @{HOME}/.local/share/ristretto/{,**} rwk,
+  owner @{HOME}/.local/share/                r,
+  owner @{HOME}/.cache/thumbnails/{,**}      r,
+
+  /etc/xfce[0-9]/defaults.list r,
+  /etc/magic r,
+  /var/lib/snapd/desktop/icons/ r,
+
+  # gnome-tiny
+  /etc/gnome/defaults.list r,
+  /etc/gtk-[0-9].[0-9]*/settings.ini r,
+
+  # edit button; comment out for significantly less footprint
+  /{,usr/}bin/dash rPx -> ristretto//dash,
+  owner @{PROC}/@{pid}/fd/ r,
+
+  dbus (send, receive)
+       bus="session"
+       path="/org/freedesktop/thumbnails/Thumbnailer1"
+       interface="org.freedesktop.thumbnails.Thumbnailer1"
+       member="{Started,Ready,Finished,Queue,Dequeue}"
+       peer=(name=:*),
+
+  dbus send
+       bus="session"
+       path="/org/freedesktop/thumbnails/Thumbnailer1"
+       interface="org.freedesktop.DBus.Properties"
+       member="GetAll"
+       peer=(name=:*),
+
+  dbus send
+       bus="session"
+       path="/org/xfce/Xfconf"
+       interface="org.xfce.Xfconf"
+       member="{GetAll,GetAllProperties,GetProperty,SetProperty}"
+       peer=(name=:*),
+
+  dbus receive
+       bus="session"
+       path="/org/xfce/Xfconf"
+       interface="org.xfce.Xfconf"
+       member="PropertyChanged"
+       peer=(name=:*),
+
+  dbus send
+       bus="session"
+       path="/org/xfce/Xfconf"
+       interface="org.freedesktop.DBus.Properties"
+       member="GetAll"
+       peer=(name=:*),
+
+  dbus send
+       bus="session"
+       path="/org/xfce/FileManager"
+       interface="org.freedesktop.DBus.Properties"
+       member="GetAll"
+       peer=(name=:*),
+
+  dbus send
+       bus="session"
+       path="/org/xfce/FileManager"
+       interface="org.xfce.FileManager"
+       member="DisplayFileProperties"
+       peer=(name=:*),
+
+  dbus send
+       bus="accessibility"
+       path="/org/a11y/atspi/registry/deviceeventcontroller"
+       interface="org.a11y.atspi.DeviceEventController"
+       member="{GetDeviceEventListeners,GetKeystrokeListeners}"
+       peer=(name=org.a11y.atspi.Registry),
+
+  dbus send
+       bus="accessibility"
+       path="/org/a11y/atspi/registry"
+       interface="org.a11y.atspi.Registry"
+       member="GetRegisteredEvents"
+       peer=(name=org.a11y.atspi.Registry),
+
+  dbus receive
+       bus="accessibility"
+       path="/org/a11y/atspi/registry"
+       interface="org.a11y.atspi.Registry"
+       member="EventListenerDeregistered"
+       peer=(name=:*),
+
+  dbus send
+       bus="accessibility"
+       path="/org/a11y/atspi/accessible/root"
+       interface="org.a11y.atspi.Socket"
+       member="Embed"
+       peer=(name=org.a11y.atspi.Registry),
+
+  dbus receive
+       bus="accessibility"
+       path="/org/a11y/atspi/accessible/root"
+       interface="org.freedesktop.DBus.Properties"
+       member="Set"
+       peer=(name=:*),
+
+  deny dbus send
+       bus="session"
+       path="/org/gtk/vfs/mounttracker"
+       interface="org.gtk.vfs.MountTracker"
+       member="ListMountableInfo"
+       peer=(name=:*),
+
+  # pictures on smb shares, etc
+  network tcp,
+  network udp,
+
+  include if exists <local/usr.bin.ristretto>
+}
+
+profile ristretto//dash {
+  /{,usr/}bin/dash r,
+  #include <abstractions/base>
+  #include <abstractions/ubuntu-helpers>
+
+  # sanitized, slightly less bad than Ux; "Use at your own risk."
+  /usr/bin/gimp-[2-3].[0-9]{,[0-9]} Cx -> sanitized_helper,
+
+  include if exists <local/usr.bin.ristretto_dash>
+}

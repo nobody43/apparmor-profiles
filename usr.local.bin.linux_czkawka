@@ -1,0 +1,167 @@
+# vim:syntax=apparmor
+
+abi <abi/3.0>,
+
+#include <tunables/global>
+
+@{DATA_DIRS_RW}=@{HOME}/Downloads @{HOME}/Public /media /mnt
+@{DATA_DIRS_RO}=/archive /backup
+
+@{BIN_PATH}=/usr{,/local}/bin/{,linux_}czkawka_{gui,cli}
+
+profile czkawka @{BIN_PATH} {
+  @{BIN_PATH} r,
+  #include <abstractions/base>
+  #include <abstractions/gnome>
+  #include <abstractions/dbus-accessibility-strict>
+  #include <abstractions/dbus-session-strict>
+  #include <abstractions/dconf>
+  #include <abstractions/private-files>
+  #include <abstractions/private-files-strict>
+  #include <abstractions/3rd/file-chooser>
+
+  owner @{HOME}/{,[^.]*}{,/**}  rwl,  # home itself, not dotfiles, nested files
+        @{DATA_DIRS_RW}/{,**}   rwl,
+        @{DATA_DIRS_RO}/{,**}   r,
+
+  @{PROC}/filesystems r,
+  owner @{PROC}/@{pid}/{mounts,cgroup,maps,cmdline,mountinfo} r,
+
+  @{sys}/fs/cgroup/cpu,cpuacct/user.slice/cpu.cfs_quota_us r,
+  @{sys}/fs/cgroup/cpu,cpuacct/cpu.cfs_quota_us            r,
+
+  owner @{HOME}/.config/czkawka/{,**}  rwk,
+  owner @{HOME}/.cache/czkawka/{,**}   rwk,
+  owner @{HOME}/.local/share/mime/*    r,
+  owner @{HOME}/results_duplicates.txt w,
+
+  /var/lib/snapd/desktop/icons/ r,
+
+  # opening files; comment out for marginally less footprint
+  /usr/bin/xdg-open   rPx -> czkawka//xdg-open,
+
+  dbus send
+       bus="accessibility"
+       path="/org/a11y/atspi/registry/deviceeventcontroller"
+       interface="org.a11y.atspi.DeviceEventController"
+       member="{GetKeystrokeListeners,GetDeviceEventListeners}"
+       peer=(name="org.a11y.atspi.Registry"),
+
+  dbus send
+       bus="accessibility"
+       path="/org/a11y/atspi/registry"
+       interface="org.a11y.atspi.Registry"
+       member="GetRegisteredEvents"
+       peer=(name="org.a11y.atspi.Registry"),
+
+  dbus send
+       bus="accessibility"
+       path="/org/a11y/atspi/accessible/root"
+       interface="org.a11y.atspi.Socket"
+       member="Embed"
+       peer=(name="org.a11y.atspi.Registry"),
+
+  dbus receive
+       bus="accessibility"
+       path="/org/a11y/atspi/accessible/root"
+       interface="org.freedesktop.DBus.Properties"
+       member="Set"
+       peer=(name=":*"),
+
+  dbus receive
+       bus="accessibility"
+       path="/org/a11y/atspi/registry"
+       interface="org.a11y.atspi.Registry"
+       member="EventListenerDeregistered"
+       peer=(name=":*"),
+
+  dbus send
+       bus="session"
+       path="/org/gtk/vfs/mounttracker"
+       interface="org.gtk.vfs.MountTracker"
+       member="ListMountableInfo"
+       peer=(name=":*"),
+
+  # data on smb shares, etc
+  network tcp,
+  network udp,
+
+  # dbus strictest
+#  deny /var/lib/dbus/machine-id r,
+#  deny /etc/machine-id r,
+
+  # Ubuntu
+  owner @{run}/user/[0-9]*/dconf/user rw,
+
+  dbus send
+       bus="session"
+       path="/org/a11y/bus"
+       interface="org.a11y.Bus"
+       member="GetAddress"
+       peer=(name="org.a11y.Bus"),
+
+  dbus send
+       bus="session"
+       path="/org/gtk/Settings"
+       interface="org.freedesktop.DBus.Properties"
+       member="GetAll"
+       peer=(name=":*"),
+
+  include if exists <local/usr.local.bin.linux_czkawka>
+}
+
+profile czkawka//xdg-open {
+  #include <abstractions/xdg-open>
+  #include <abstractions/dbus-accessibility-strict>
+  #include <abstractions/private-files>
+  #include <abstractions/private-files-strict>
+  #include <abstractions/ubuntu-helpers>
+
+  /var/lib/snapd/desktop/icons/ r,
+
+  /{,usr/}bin/dash         rix,
+
+  # use separate profile
+  /usr/bin/ristretto        Px -> ristretto,        # images
+  /usr/bin/evince           Px,                     # .pdf
+  /usr/lib/libreoffice/program/soffice Px -> libreoffice-soffice,  # might be in complain; requires local fix
+
+  # sanitized, slightly less bad than Ux; "Use at your own risk."
+  /usr/bin/nautilus         Cx -> sanitized_helper, # Gnome
+#  /usr/bin/pcmanfm          Cx -> sanitized_helper, # LXDE
+  /usr/bin/krusader         Cx -> sanitized_helper, # KDE
+  /usr/bin/thunar           Cx -> sanitized_helper, # XFCE
+  /usr/bin/nemo             Cx -> sanitized_helper, # Cinnamon
+  /usr/bin/atril            Cx -> sanitized_helper, # .pdf
+  /usr/bin/gedit            Cx -> sanitized_helper, # .txt
+  /usr/bin/engrampa         Cx -> sanitized_helper, # archives
+  /usr/bin/file-roller      Cx -> sanitized_helper, # archives
+  /usr/bin/smplayer         Cx -> sanitized_helper,
+  /usr/bin/vlc              Cx -> sanitized_helper, # noisy
+  /usr/bin/mpv              Cx -> sanitized_helper, # noisy
+  /usr/bin/clementine       Cx -> sanitized_helper, # noisy
+  /usr/bin/eog              Cx -> sanitized_helper,
+#  /usr/lib/libreoffice/program/soffice Cx -> sanitized_helper, # noisy; without setup
+
+  # unrestricted, DANGEROUS
+#  /usr/bin/vlc              Ux,                # silent
+#  /usr/bin/mpv              Ux,                # silent
+#  /usr/bin/clementine       Ux,                # silent
+#  /usr/lib/libreoffice/program/soffice  Ux,    # silent; without setup
+
+  dbus send
+       bus="session"
+       path="/org/gnome/gedit"
+       interface="org.freedesktop.Application"
+       member="Open"
+       peer=(name="org.gnome.gedit"),
+
+  dbus receive
+       bus="accessibility"
+       path="/org/a11y/atspi/registry"
+       interface="org.a11y.atspi.Registry"
+       member="EventListenerDeregistered"
+       peer=(name=":*"),
+
+  include if exists <local/usr.local.bin.linux_czkawka_xdg-open>
+}
