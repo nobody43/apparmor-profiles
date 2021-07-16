@@ -4,6 +4,7 @@ abi <abi/3.0>,
 
 #include <tunables/global>
 
+# changeme
 @{DATA_DIRS_RW}=@{HOME}/Downloads @{HOME}/Public /media /mnt
 @{DATA_DIRS_RO}=/archive /backup
 
