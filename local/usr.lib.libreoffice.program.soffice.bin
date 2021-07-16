@@ -1,0 +1,19 @@
+# Site-specific additions and overrides for usr.lib.libreoffice.program.soffice.bin.
+# For more details, please see /etc/apparmor.d/local/README.
+
+  # changeme
+  /{media,mnt}/{,**} r,
+ 
+  owner @{PROC}/@{pid}/{comm,mountinfo,cgroup} r,
+ 
+  @{sys}/fs/cgroup/cpu,cpuacct/user.slice/cpu.cfs_quota_us   r,
+  @{sys}/fs/cgroup/cpu,cpuacct/user.slice/cpu.cfs_period_us  r,
+  @{sys}/fs/cgroup/cpu,cpuacct/user.slice/cpu.shares         r,
+ 
+  /usr/bin/dirname  rix,
+  /usr/bin/basename rix,
+  /bin/sed          rix,
+  /bin/grep         rix,
+  /bin/uname        rix,
+ 
+  /usr/lib/libreoffice/program/oosplash Px -> libreoffice-oosplash,  # might be in complain
