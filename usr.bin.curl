@@ -8,7 +8,6 @@ profile curl /usr/bin/curl {
   #include <abstractions/openssl>
   #include <abstractions/ssl_certs>
   #include <abstractions/3rd/nameservice-strict>
-  #include <abstractions/3rd/proxychains>
 
   owner @{HOME}/.curlrc r,
 
@@ -26,13 +25,11 @@ profile curl /usr/bin/curl {
   signal (receive)      set=("term")              peer=zabbix_agentd,
 
   # Ubuntu
-  network inet dgram,
-  network inet6 dgram,
-  network inet stream,
-  network inet6 stream,
-  network netlink raw,
-
-  unix (create) type=stream,
+#  network inet dgram,
+#  network inet6 dgram,
+#  network inet stream,
+#  network inet6 stream,
+#  network netlink raw,
 
   # Armbian
 #  /usr/bin/curl m,
