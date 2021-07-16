@@ -28,6 +28,9 @@ Read-only version by default.
 
 WARNING: custom applications might fail without adjustment!
 
+#### Dependencies
+- `abstractions/3rd/nameservice-strict`
+
 #### Compatibility
 - Pi-hole (commented out by default)
 
