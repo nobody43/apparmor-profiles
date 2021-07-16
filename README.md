@@ -36,8 +36,28 @@ WARNING: custom applications might fail without adjustment!
 - Armbian Buster
 - Ubuntu 20.04 (commented out by default)
 
+### [czkawka](https://github.com/nobodysu/apparmor-profiles/blob/master/usr.local.bin.linux_czkawka)
+Snap releases are not supported.
+
+#### Dependencies
+- `abstractions/3rd/file-chooser`
+- `abstractions/3rd/nameservice-strict`
+- `local/usr.lib.libreoffice.program.soffice.bin`
+
+#### Excessiveness (comment out if not needed)
+- interactive `file-chooser` dialog
+- opening files with `xdg-open`
+- various `sanitized_helper` transitions
+
+#### Supported systems
+- Xubuntu 20.10
+- Ubuntu 21.04
+
 ### [yadifa](https://github.com/nobodysu/apparmor-profiles/blob/master/usr.bin.yadifa)
-Slightly relaxed because of `base`. Without transfers.
+Without transfers.
 
 #### Supported systems
 - Debian 10
+
+# Links
+- https://github.com/qarmin/czkawka/
