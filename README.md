@@ -46,9 +46,11 @@ Snap releases are not supported.
 - `usr.bin.ristretto`
 
 #### Excessiveness
+- `w`rite access on home
 - interactive `file-chooser` dialog
 - opening files with `xdg-open`
 - various `sanitized_helper` transitions
+- *disabled* `dbus-overwrite`
 
 #### Supported systems
 - Xubuntu 20.10
@@ -57,7 +59,7 @@ Snap releases are not supported.
 ### [ristretto](https://github.com/nobodysu/apparmor-profiles/blob/master/usr.bin.ristretto)
 
 #### Excessiveness
-- file deletion by write access
+- file deletion by `w`rite access
 - editing with `dash` transition
 - *disabled* interactive `file-chooser` dialog
 
