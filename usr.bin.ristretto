@@ -17,10 +17,11 @@ profile ristretto /usr/bin/ristretto {
   #include <abstractions/freedesktop.org>
   #include <abstractions/private-files>
   #include <abstractions/private-files-strict>
+#  #include <abstractions/3rd/file-chooser>
 
-  owner @{HOME}/{,[^.]*}{,/**}  r,  # home itself, not dotfiles, nested files
-        @{PIC_DIRS}/{,**} r,        # read
-        @{PIC_DIRS}/{,**} w,        # write (=delete)
+  owner @{HOME}/{,[^.]*}{,/**}  rw, # home itself, not dotfiles, nested files
+        @{PIC_DIRS}/{,**}       r,  # read
+        @{PIC_DIRS}/{,**}        w, # write (=delete)
 
   deny /var/log/{,**} mrwkl,  # protect the logs
 
@@ -28,6 +29,9 @@ profile ristretto /usr/bin/ristretto {
   owner @{HOME}/.local/share/ristretto/{,**} rwk,
   owner @{HOME}/.local/share/                r,
   owner @{HOME}/.cache/thumbnails/{,**}      r,
+
+  owner @{PROC}/@{pid}/{mountinfo,mounts} r,
+  /{,var/}run/mount/utab r,
 
   /etc/xfce[0-9]/defaults.list r,
   /etc/magic r,
