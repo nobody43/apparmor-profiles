@@ -53,6 +53,15 @@ Snap releases are not supported.
 - Xubuntu 20.10
 - Ubuntu 21.04
 
+### [ristretto](https://github.com/nobodysu/apparmor-profiles/blob/master/usr.bin.ristretto)
+
+#### Excessiveness
+- file deletion by write access
+- editing with `dash` transition
+
+#### Supported systems
+- Xubuntu 20.10
+
 ### [yadifa](https://github.com/nobodysu/apparmor-profiles/blob/master/usr.bin.yadifa)
 Without transfers.
 
