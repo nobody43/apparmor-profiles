@@ -43,8 +43,9 @@ Snap releases are not supported.
 - `abstractions/3rd/file-chooser`
 - `abstractions/3rd/nameservice-strict`
 - `local/usr.lib.libreoffice.program.soffice.bin`
+- `usr.bin.ristretto`
 
-#### Excessiveness (comment out if not needed)
+#### Excessiveness
 - interactive `file-chooser` dialog
 - opening files with `xdg-open`
 - various `sanitized_helper` transitions
@@ -58,6 +59,7 @@ Snap releases are not supported.
 #### Excessiveness
 - file deletion by write access
 - editing with `dash` transition
+- *disabled* interactive `file-chooser` dialog
 
 #### Supported systems
 - Xubuntu 20.10
