@@ -20,6 +20,7 @@ profile czkawka @{BIN_PATH} {
   #include <abstractions/private-files>
   #include <abstractions/private-files-strict>
   #include <abstractions/3rd/file-chooser>
+#  #include <abstractions/3rd/dbus-overwrite>
 
   owner @{HOME}/{,[^.]*}{,/**}  rwl,  # home itself, not dotfiles, nested files
         @{DATA_DIRS_RW}/{,**}   rwl,
@@ -86,10 +87,6 @@ profile czkawka @{BIN_PATH} {
   # data on smb shares, etc
   network tcp,
   network udp,
-
-  # dbus strictest
-#  deny /var/lib/dbus/machine-id r,
-#  deny /etc/machine-id r,
 
   # Ubuntu
   owner @{run}/user/[0-9]*/dconf/user rw,

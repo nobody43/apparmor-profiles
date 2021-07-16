@@ -1,0 +1,4 @@
+# vim:syntax=apparmor
+
+  deny /etc/machine-id          r,
+  deny /var/lib/dbus/machine-id r,
