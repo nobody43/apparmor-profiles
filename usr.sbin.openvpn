@@ -1,0 +1,41 @@
+# vim:syntax=apparmor
+
+#include <tunables/global>
+
+profile openvpn /usr/sbin/openvpn {
+  #include <abstractions/base>
+  #include <abstractions/openssl>
+  #include <abstractions/3rd/nameservice-strict>
+
+  capability net_admin,
+  capability setuid,
+  capability setgid,
+
+  /etc/openvpn/server.conf              r,
+  /etc/openvpn/server.{crt,key}         r,
+  /etc/openvpn/ca.crt                   r,
+  /etc/openvpn/dh{,[0-9]*[0-9]}.pem     r,
+  /etc/openvpn/ta{,[0-9]*[0-9]}.key     r,
+  /etc/openvpn/client{,-tcp,-udp}.conf  r,
+  /etc/openvpn/creds.txt                r,
+
+  /dev/net/tun rw,
+  @{PROC}/@{pid}/net/route r,
+
+  /var/log/openvpn/openvpn-status.log           rw,
+  /var/log/openvpn/openvpn.log                  rw,
+  /var/log/openvpn/ipp.txt                      rw,
+  /{,var/}run/openvpn/server.pid                rw,
+  /{,var/}run/openvpn/client{,-tcp,-udp}.pid    rw,
+  /{,var/}run/openvpn/client{,-tcp,-udp}.status rw,
+
+  /{,usr/}bin/ip Cx,
+  profile ip /{,usr/}bin/ip {
+    /{,usr/}bin/ip r,
+    #include <abstractions/base>
+
+    capability net_admin,
+
+    /var/log/openvpn/openvpn.log w,
+  }
+}
