@@ -69,6 +69,14 @@ Snap releases are not supported.
 #### Supported systems
 - Xubuntu 20.10
 
+### [openvpn](https://github.com/nobodysu/apparmor-profiles/blob/master/usr.sbin.openvpn)
+
+#### Dependencies
+- `abstractions/3rd/nameservice-strict`
+
+#### Supported systems
+- Debian 10
+
 ### [yadifa](https://github.com/nobodysu/apparmor-profiles/blob/master/usr.bin.yadifa)
 Without transfers.
 
@@ -79,3 +87,4 @@ Without transfers.
 - [F**k AppArmor](https://presentations.nordisch.org/apparmor/) - crash course
 - [AppArmor Core Policy Reference](https://gitlab.com/apparmor/apparmor/-/wikis/AppArmor_Core_Policy_Reference)
 - https://github.com/qarmin/czkawka/
+- https://github.com/yadifa/yadifa
