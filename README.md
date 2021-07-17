@@ -70,6 +70,7 @@ Snap releases are not supported.
 - Xubuntu 20.10
 
 ### [openvpn](https://github.com/nobodysu/apparmor-profiles/blob/master/usr.sbin.openvpn)
+Without NetworkManager.
 
 #### Dependencies
 - `abstractions/3rd/nameservice-strict`
