@@ -77,5 +77,5 @@ Without transfers.
 
 # Links
 - [F**k AppArmor](https://presentations.nordisch.org/apparmor/) - crash course
-- [AppArmor Core_Policy Reference](https://gitlab.com/apparmor/apparmor/-/wikis/AppArmor_Core_Policy_Reference)
+- [AppArmor Core Policy Reference](https://gitlab.com/apparmor/apparmor/-/wikis/AppArmor_Core_Policy_Reference)
 - https://github.com/qarmin/czkawka/
