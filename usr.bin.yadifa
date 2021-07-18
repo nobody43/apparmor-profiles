@@ -11,4 +11,6 @@
   /var/lib/yadifa/** r,
 
   /var/log/yadifa/*.log w,
+
+#  #include <local/usr.bin.yadifa>
 }

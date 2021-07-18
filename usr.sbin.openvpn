@@ -20,6 +20,7 @@ profile openvpn /usr/sbin/openvpn {
   /etc/openvpn/creds.txt                r,
 
   /dev/net/tun rw,
+
   @{PROC}/@{pid}/net/route r,
 
   /var/log/openvpn/openvpn-status.log           rw,
@@ -38,4 +39,6 @@ profile openvpn /usr/sbin/openvpn {
 
     /var/log/openvpn/openvpn.log w,
   }
+
+#  #include <local/usr.sbin.openvpn>
 }
