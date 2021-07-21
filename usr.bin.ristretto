@@ -147,6 +147,8 @@ profile ristretto//dash {
   /{,usr/}bin/dash r,
   #include <abstractions/base>
   #include <abstractions/ubuntu-helpers>
+  #include <abstractions/private-files>
+  #include <abstractions/private-files-strict>
 
   # sanitized, slightly less bad than Ux; "Use at your own risk."
   /usr/bin/gimp-[2-3].[0-9]{,[0-9]} Cx -> sanitized_helper,
