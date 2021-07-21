@@ -5,6 +5,7 @@
 profile openvpn /usr/sbin/openvpn {
   #include <abstractions/base>
   #include <abstractions/openssl>
+#  #include <abstractions/nameservice>   # embedded, but more relaxed
   #include <abstractions/3rd/nameservice-strict>
 
   capability net_admin,

@@ -2,6 +2,7 @@
 
   #include <abstractions/dbus-strict>
   #include <abstractions/3rd/nameservice-strict>
+#  #include <abstractions/nameservice>   # embedded, but more relaxed
 
   # list directory contents
   / r,

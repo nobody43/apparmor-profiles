@@ -7,6 +7,7 @@ profile curl /usr/bin/curl {
   #include <abstractions/base>
   #include <abstractions/openssl>
   #include <abstractions/ssl_certs>
+#  #include <abstractions/nameservice>   # embedded, but more relaxed
   #include <abstractions/3rd/nameservice-strict>
 
   owner @{HOME}/.curlrc r,
