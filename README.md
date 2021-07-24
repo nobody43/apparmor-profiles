@@ -37,7 +37,7 @@ WARNING: custom applications might fail without adjustment!
 #### Supported systems
 - Debian 10
 - Armbian Buster
-- Ubuntu 20.04 (commented out by default)
+- Xubuntu 20.10 (commented out by default)
 
 ### [czkawka](https://github.com/nobodysu/apparmor-profiles/blob/master/usr.local.bin.linux_czkawka)
 Snap releases are not supported.
@@ -83,6 +83,37 @@ Without transfers.
 
 #### Supported systems
 - Debian 10
+
+### [youtube-dl](https://github.com/nobodysu/apparmor-profiles/blob/master/usr.local.bin.youtube-dl)
+No auto-update and debug.
+
+#### Dependencies
+- `abstractions/3rd/nameservice-strict`
+
+#### Excessiveness
+- *disabled* `--exec`
+
+#### Supported systems
+- Debian 10
+- Xubuntu 20.10
+- Ubuntu 21.04
+
+### [youtubedl-gui](https://github.com/nobodysu/apparmor-profiles/blob/master/usr.local.bin.youtubedl-gui)
+Flatpack releases are not supported.
+
+#### Dependencies
+- `abstractions/3rd/nameservice-strict`
+
+#### Excessiveness
+- *disabled* interactive `file-chooser` dialog
+- *disabled* `dbus-overwrite`
+- *disabled* `qt5-settings-write`
+- *disabled* `network` access
+
+#### Supported systems
+- Debian 10
+- Xubuntu 20.10
+- Ubuntu 21.04
 
 # Links
 - [F**k AppArmor](https://presentations.nordisch.org/apparmor/) - crash course
