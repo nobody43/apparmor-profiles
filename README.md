@@ -120,3 +120,4 @@ Flatpack releases are not supported.
 - [AppArmor Core Policy Reference](https://gitlab.com/apparmor/apparmor/-/wikis/AppArmor_Core_Policy_Reference)
 - https://github.com/qarmin/czkawka/
 - https://github.com/yadifa/yadifa
+- https://github.com/JaGoLi/ytdl-gui
