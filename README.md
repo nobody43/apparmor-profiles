@@ -103,6 +103,7 @@ Flatpack releases are not supported.
 
 #### Dependencies
 - `abstractions/3rd/nameservice-strict`
+- `usr.local.bin.youtube-dl`
 
 #### Excessiveness
 - *disabled* interactive `file-chooser` dialog
