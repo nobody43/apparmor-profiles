@@ -1,0 +1,127 @@
+# vim:syntax=apparmor
+
+#include <tunables/global>
+
+# changeme
+@{DOWNLOAD_FOLDERS}=@{HOME}/Downloads /tmp/ytdl
+@{YTDL_PATH}=/usr/{,local/}bin/youtube-dl
+
+profile youtubedl_gui /usr/{,local/}bin/youtubedl-gui {
+  /usr/{,local/}bin/youtubedl-gui r,
+  #include <abstractions/base>
+  #include <abstractions/gnome>
+  #include <abstractions/ibus>
+  #include <abstractions/dconf>
+  #include <abstractions/dbus-accessibility-strict>
+  #include <abstractions/dbus-session-strict>
+  #include <abstractions/qt5>
+  #include <abstractions/private-files>
+  #include <abstractions/private-files-strict>
+#  #include <abstractions/nameservice>
+  #include <abstractions/3rd/nameservice-strict>
+#  #include <abstractions/3rd/file-chooser>
+#  #include <abstractions/3rd/dbus-overwrite>
+
+  @{DOWNLOAD_FOLDERS}/** rw,
+
+  # qt5-settings-write-deny (modification)
+  deny owner @{HOME}/.config/QtProject.conf* wkl,
+  deny owner @{HOME}/.config/#[0-9]*[0-9]    wkl,
+  # or allow write access
+#  #include <abstractions/qt5-settings-write>
+
+  deny @{PROC}/sys/kernel/random/boot_id r,
+  deny /usr/share/nvidia/nvidia-application-profiles-* r,
+       /usr/libexec/coreutils/libstdbuf.so mr,
+
+  owner @{PROC}/@{pid}/{cmdline,comm}  r,
+
+  /dev/tty rw,
+
+  owner /tmp/ytdl_prg    w,
+  owner /tmp/ytdl_stderr w,
+
+  owner /{,var/}run/user/*/dconf/user w,
+
+  /usr/share/hwdata/pnp.ids r,
+
+  /usr/bin/stdbuf    rix,
+  /{,usr/}bin/grep   rix,
+  /{,usr/}bin/bash   rix,
+
+  @{YTDL_PATH}       rPx -> youtube_dl,
+
+  dbus send
+       bus="session"
+       path="/org/a11y/bus"
+       interface="org.freedesktop.DBus.Properties"
+       member="Get"
+       peer=(name="org.a11y.Bus"),
+
+  dbus send
+       bus="accessibility"
+       path="/org/a11y/atspi/accessible/root"
+       interface="org.a11y.atspi.Socket"
+       member="Embed"
+       peer=(name="org.a11y.atspi.Registry"),
+
+  dbus receive
+       bus="accessibility"
+       path="/org/a11y/atspi/accessible/root"
+       interface="org.freedesktop.DBus.Properties"
+       member="Set"
+       peer=(name=":*"),
+
+  dbus send
+       bus="accessibility"
+       path="/org/a11y/atspi/registry/deviceeventcontroller"
+       interface="org.a11y.atspi.DeviceEventController"
+       member="{GetKeystrokeListeners,GetDeviceEventListeners}"
+       peer=(name="org.a11y.atspi.Registry"),
+
+  dbus send
+       bus="accessibility"
+       path="/org/a11y/atspi/registry"
+       interface="org.a11y.atspi.Registry"
+       member="GetRegisteredEvents"
+       peer=(name="org.a11y.atspi.Registry"),
+
+  dbus receive
+       bus="accessibility"
+       path="/org/a11y/atspi/registry"
+       interface="org.a11y.atspi.Registry"
+       member="EventListenerDeregistered"
+       peer=(name=":*"),
+
+  dbus send
+       bus="session"
+       path="/org/gtk/vfs/mounttracker"
+       interface="org.gtk.vfs.MountTracker"
+       member="ListMountableInfo"
+       peer=(name=":*"),
+
+  # Ubuntu
+  owner @{HOME}/.cache/mesa_shader_cache/index rw,
+
+  dbus send
+       bus="session"
+       path="/org/a11y/bus"
+       interface="org.a11y.Bus"
+       member="GetAddress"
+       peer=(name="org.a11y.Bus"),
+
+  dbus send
+       bus="session"
+       path="/org/gtk/Settings"
+       interface="org.freedesktop.DBus.Properties"
+       member="GetAll"
+       peer=(name=":*"),
+
+  # save to smb shares, etc
+#  network tcp,
+#  network udp,
+
+  # or deny network access by itself
+  deny network tcp,
+  deny network udp,
+}

@@ -5,12 +5,19 @@
   #include <abstractions/3rd/nameservice-strict>
 
   # list directory contents
-  / r,
+  /    r,
   /**/ r,
 
+  @{HOME}/.cache/thumbnails/** r,
+
+  @{PROC}/@{pid}/mountinfo r,
+
+  # initialization only?
+  /usr/share/uim/{,**/}*.scm  r,
+  /var/lib/uim/*.scm          r,
+
   # noisy
-  /etc/fstab r,
-  deny @{HOME}/.cache/thumbnails/** r,
+  deny /etc/fstab r,
 
   dbus send
        bus="session"
