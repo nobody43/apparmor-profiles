@@ -1,0 +1,78 @@
+# vim:syntax=apparmor
+
+#include <tunables/global>
+
+# changeme
+@{DOWNLOAD_FOLDERS}=@{HOME}/Downloads /tmp/ytdl
+@{YTDL_PATH}=/usr/{,local/}bin/youtube-dl
+
+profile youtube_dl @{YTDL_PATH} {
+  @{YTDL_PATH} r,
+  #include <abstractions/base>
+  #include <abstractions/openssl>
+  #include <abstractions/ssl_certs>
+#  #include <abstractions/nameservice>
+  #include <abstractions/3rd/nameservice-strict>
+
+  @{DOWNLOAD_FOLDERS}/** rw,
+
+  /etc/youtube-dl.conf   r,
+  /etc/mime.types        r,
+  /etc/python{2.[4-7],3.[0-9],3.[0-9][0-9]}/** r,
+
+  owner @{PROC}/@{pid}/{fd/,mounts} r,
+
+  owner @{HOME}/.cache/youtube-dl/{,**}  rwk,
+  owner @{HOME}/.config/youtube-dl/{,**} rwk,
+
+  owner /tmp/ytdl_prg    w,
+  owner /tmp/ytdl_stderr w,
+  owner /tmp/??????      w,
+  owner /var/tmp/??????  w,
+
+  /usr/bin/python{2.[4-7],3.[0-9],3.[0-9][0-9]}  rix,
+  /usr/bin/env                                   rix,
+  /{,usr/}bin/stty                               rix,
+  /{,usr/}sbin/ldconfig{,.real}                  rix,
+  /{,usr/}bin/uname                              rix,
+
+  /usr/local/lib{,32,64}/python{2.[4-7],3.[0-9],3.[0-9][0-9]}/{site,dist}-packages/{,youtube_dl/**} r,
+  deny /usr/bin/ r,  # ?; noisy
+
+  /usr/bin/ffmpeg Cx,
+  profile ffmpeg /usr/bin/ffmpeg {
+    /usr/bin/ffmpeg r,
+    #include <abstractions/base>
+
+    @{DOWNLOAD_FOLDERS}/** rw,
+
+    /sys/devices/system/node/{,node[0-9]*/meminfo} r,
+  }
+
+  /usr/bin/ffprobe Cx,
+  profile ffprobe /usr/bin/ffprobe {
+    /usr/bin/ffprobe r,
+    #include <abstractions/base>
+
+    @{DOWNLOAD_FOLDERS}/** r,
+
+    /sys/devices/system/node/{,node[0-9]*/meminfo} r,
+  }
+
+  /{,usr/}bin/dash Cx,
+  profile dash /{,usr/}bin/dash {
+    /{,usr/}bin/dash r,
+    #include <abstractions/base>
+
+    @{DOWNLOAD_FOLDERS}/** rw,
+
+    # --exec commands goes here
+#    /bin/mv         rix,
+#    /bin/cp          Ux,   # Unrestricted, DANGEROUS
+  }
+
+  # Ubuntu
+  network tcp,
+  network udp,
+  network netlink raw,
+}
