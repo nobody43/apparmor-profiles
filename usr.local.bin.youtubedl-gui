@@ -4,7 +4,7 @@
 
 # changeme
 @{DOWNLOAD_FOLDERS}=@{HOME}/Downloads /tmp/ytdl
-@{YTDL_PATH}=/usr/{,local/}bin/youtube-dl
+@{YTDL_PATH}=/usr/{,local/}bin/{youtube-dl,yt-dlp}*
 
 profile youtubedl_gui /usr/{,local/}bin/youtubedl-gui {
   /usr/{,local/}bin/youtubedl-gui r,
