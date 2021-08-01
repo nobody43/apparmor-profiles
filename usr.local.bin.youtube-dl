@@ -4,7 +4,7 @@
 
 # changeme
 @{DOWNLOAD_FOLDERS}=@{HOME}/Downloads /tmp/ytdl
-@{YTDL_PATH}=/usr/{,local/}bin/youtube-dl
+@{YTDL_PATH}=/usr/{,local/}bin/{youtube-dl,yt-dlp}*
 
 profile youtube_dl @{YTDL_PATH} {
   @{YTDL_PATH} r,
@@ -25,10 +25,10 @@ profile youtube_dl @{YTDL_PATH} {
   owner @{HOME}/.cache/youtube-dl/{,**}  rwk,
   owner @{HOME}/.config/youtube-dl/{,**} rwk,
 
-  owner /tmp/ytdl_prg    w,
-  owner /tmp/ytdl_stderr w,
-  owner /tmp/??????      w,
-  owner /var/tmp/??????  w,
+  owner /tmp/ytdl_prg    rw,
+  owner /tmp/ytdl_stderr rw,
+  owner /tmp/??????       w,
+  owner /var/tmp/??????   w,
 
   /usr/bin/python{2.[4-7],3.[0-9],3.[0-9][0-9]}  rix,
   /usr/bin/env                                   rix,
@@ -57,6 +57,9 @@ profile youtube_dl @{YTDL_PATH} {
     @{DOWNLOAD_FOLDERS}/** r,
 
     /sys/devices/system/node/{,node[0-9]*/meminfo} r,
+
+    # some media-providers require network
+    network tcp,
   }
 
   /{,usr/}bin/dash Cx,
@@ -70,6 +73,9 @@ profile youtube_dl @{YTDL_PATH} {
 #    /bin/mv         rix,
 #    /bin/cp          Ux,   # Unrestricted, DANGEROUS
   }
+
+  # yt-dlp
+  /{,var/}run/uuidd/request rw,
 
   # Ubuntu
   network tcp,
