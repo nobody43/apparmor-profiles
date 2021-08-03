@@ -24,8 +24,6 @@ Error log is `/var/log/syslog` by default.
 
 ## Profiles
 ### [curl](https://github.com/nobodysu/apparmor-profiles/blob/master/usr.bin.curl)
-Read-only version by default.
-
 WARNING: custom applications might fail without adjustment!
 
 #### Dependencies
@@ -34,10 +32,10 @@ WARNING: custom applications might fail without adjustment!
 #### Compatibility
 - Pi-hole (commented out by default)
 
-#### Supported systems
+#### Tested on
 - Debian 10
 - Armbian Buster
-- Xubuntu 20.10 (commented out by default)
+- Xubuntu 21.04 (commented out by default)
 
 ### [czkawka](https://github.com/nobodysu/apparmor-profiles/blob/master/usr.local.bin.linux_czkawka)
 Snap releases are not supported.
@@ -55,8 +53,8 @@ Snap releases are not supported.
 - various `sanitized_helper` transitions
 - *disabled* `dbus-overwrite`
 
-#### Supported systems
-- Xubuntu 20.10
+#### Tested on
+- Xubuntu 21.04
 - Ubuntu 21.04
 
 ### [ristretto](https://github.com/nobodysu/apparmor-profiles/blob/master/usr.bin.ristretto)
@@ -66,22 +64,22 @@ Snap releases are not supported.
 - editing with `dash` transition
 - *disabled* interactive `file-chooser` dialog
 
-#### Supported systems
-- Xubuntu 20.10
+#### Tested on
+- Xubuntu 21.04
 
 ### [openvpn](https://github.com/nobodysu/apparmor-profiles/blob/master/usr.sbin.openvpn)
-Without NetworkManager.
+Without NetworkManager. Without interactive credentials supplying, so be sure to provide them in config with `auth-user-pass`.
 
 #### Dependencies
 - `abstractions/3rd/nameservice-strict`
 
-#### Supported systems
+#### Tested on
 - Debian 10
 
 ### [yadifa](https://github.com/nobodysu/apparmor-profiles/blob/master/usr.bin.yadifa)
 Without transfers.
 
-#### Supported systems
+#### Tested on
 - Debian 10
 
 ### [youtube-dl](https://github.com/nobodysu/apparmor-profiles/blob/master/usr.local.bin.youtube-dl)
@@ -93,9 +91,9 @@ No auto-update and debug.
 #### Excessiveness
 - *disabled* `--exec`
 
-#### Supported systems
+#### Tested on
 - Debian 10
-- Xubuntu 20.10
+- Xubuntu 21.04
 - Ubuntu 21.04
 
 ### [youtubedl-gui](https://github.com/nobodysu/apparmor-profiles/blob/master/usr.local.bin.youtubedl-gui)
@@ -111,9 +109,9 @@ Flatpack releases are not supported.
 - *disabled* `qt5-settings-write`
 - *disabled* `network` access
 
-#### Supported systems
+#### Tested on
 - Debian 10
-- Xubuntu 20.10
+- Xubuntu 21.04
 - Ubuntu 21.04
 
 # Links
