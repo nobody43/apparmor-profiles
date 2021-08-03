@@ -14,11 +14,11 @@ profile openvpn /usr/sbin/openvpn {
 
   /etc/openvpn/server.conf              r,
   /etc/openvpn/server.{crt,key}         r,
-  /etc/openvpn/[cC][aA].crt             r,
+  /etc/openvpn/[cC][aA].crt             r, # ca.crt, CA.crt, cA.crt
   /etc/openvpn/dh{,[0-9]*[0-9]}.pem     r, # dh.pem, dh2048.pem, dh1secret9.pem
   /etc/openvpn/ta{,[0-9]*[0-9]}.key     r,
-  /etc/openvpn/client{,-tcp,-udp}.conf  r, # client.conf, client-tcp.conf, client-udp.conf
-  /etc/openvpn/authpass.txt             r,
+  /etc/openvpn/client{,-*}.conf         r, # client.conf, client-tcp.conf, client-any.conf
+  /etc/openvpn/auth-userpass.txt        r,
 
   /dev/net/tun rw,
 
@@ -28,8 +28,8 @@ profile openvpn /usr/sbin/openvpn {
   /var/log/openvpn/openvpn.log                  rw,
   /var/log/openvpn/ipp.txt                      rw,
   /{,var/}run/openvpn/server.pid                rw,
-  /{,var/}run/openvpn/client{,-tcp,-udp}.pid    rw,
-  /{,var/}run/openvpn/client{,-tcp,-udp}.status rw,
+  /{,var/}run/openvpn/client{,-*}.pid           rw,
+  /{,var/}run/openvpn/client{,-*}.status        rw,
 
   /{,usr/}bin/ip Cx,
   profile ip /{,usr/}bin/ip {
