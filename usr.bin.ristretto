@@ -36,6 +36,7 @@ profile ristretto /usr/bin/ristretto {
   /etc/xfce[0-9]/defaults.list r,
   /etc/magic r,
   /var/lib/snapd/desktop/icons/ r,
+  owner /tmp/dbus-* w,
 
   # gnome-tiny
   /etc/gnome/defaults.list r,
