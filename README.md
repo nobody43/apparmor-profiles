@@ -91,6 +91,9 @@ No auto-update and debug.
 #### Excessiveness
 - *disabled* `--exec`
 
+#### Compatibility
+- yt-dlp
+
 #### Tested on
 - Debian 10
 - Xubuntu 21.04
