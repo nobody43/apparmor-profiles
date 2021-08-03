@@ -14,7 +14,7 @@ profile youtube_dl @{YTDL_PATH} {
 #  #include <abstractions/nameservice>
   #include <abstractions/3rd/nameservice-strict>
 
-  @{DOWNLOAD_FOLDERS}/** rw,
+  @{DOWNLOAD_FOLDERS}/** rwk,
 
   /etc/youtube-dl.conf   r,
   /etc/mime.types        r,
@@ -76,6 +76,8 @@ profile youtube_dl @{YTDL_PATH} {
 
   # yt-dlp
   /{,var/}run/uuidd/request rw,
+  /usr/share/dpkg/cputable  r,
+  deny /etc/apt/apt.conf.d/ r,   # ??
 
   # Ubuntu
   network tcp,
