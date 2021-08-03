@@ -76,7 +76,6 @@ profile youtube_dl @{YTDL_PATH} {
 
   # yt-dlp
   /{,var/}run/uuidd/request rw,
-  /usr/share/dpkg/cputable  r,
   deny /etc/apt/apt.conf.d/ r,   # ??
 
   # Ubuntu
