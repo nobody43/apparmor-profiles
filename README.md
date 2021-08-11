@@ -83,7 +83,7 @@ Without transfers.
 - Debian 10
 
 ### [youtube-dl](https://github.com/nobodysu/apparmor-profiles/blob/master/usr.local.bin.youtube-dl)
-No auto-update and debug.
+No auto-update and debug. No access to browser cookies ATM.
 
 #### Dependencies
 - `abstractions/3rd/nameservice-strict`
