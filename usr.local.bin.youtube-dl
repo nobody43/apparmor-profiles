@@ -47,6 +47,9 @@ profile youtube_dl @{YTDL_PATH} {
     @{DOWNLOAD_FOLDERS}/** rw,
 
     /sys/devices/system/node/{,node[0-9]*/meminfo} r,
+
+    include if exists <local/usr.local.bin.youtube-dl_ffmpeg>
+#    #include <local/usr.local.bin.youtube-dl_ffmpeg>
   }
 
   /usr/bin/ffprobe Cx,
@@ -60,6 +63,9 @@ profile youtube_dl @{YTDL_PATH} {
 
     # some media-providers require network
     network tcp,
+
+    include if exists <local/usr.local.bin.youtube-dl_ffprobe>
+#    #include <local/usr.local.bin.youtube-dl_ffprobe>
   }
 
   /{,usr/}bin/dash Cx,
@@ -72,14 +78,21 @@ profile youtube_dl @{YTDL_PATH} {
     # --exec commands goes here
 #    /bin/mv         rix,
 #    /bin/cp          Ux,   # Unrestricted, DANGEROUS
+
+    include if exists <local/usr.local.bin.youtube-dl_dash>
+#    #include <local/usr.local.bin.youtube-dl_dash>
   }
 
   # yt-dlp
   /{,var/}run/uuidd/request rw,
+  /usr/share/dpkg/cputable  r,
   deny /etc/apt/apt.conf.d/ r,   # ??
 
   # Ubuntu
   network tcp,
   network udp,
   network netlink raw,
+
+  include if exists <local/usr.local.bin.youtube-dl>
+#  #include <local/usr.local.bin.youtube-dl>
 }
