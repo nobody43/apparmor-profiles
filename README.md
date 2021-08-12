@@ -95,7 +95,7 @@ No auto-update and debug. No access to browser cookies ATM.
 - yt-dlp
 
 #### Tested on
-- Debian 10
+- Debian 10 (incompatible with `include if exists`)
 - Xubuntu 21.04
 - Ubuntu 21.04
 
@@ -113,13 +113,14 @@ Flatpack releases are not supported.
 - *disabled* `network` access
 
 #### Tested on
-- Debian 10
+- Debian 10 (incompatible with `include if exists`)
 - Xubuntu 21.04
 - Ubuntu 21.04
 
 # Links
-- [F**k AppArmor](https://presentations.nordisch.org/apparmor/) - crash course
-- [AppArmor Core Policy Reference](https://gitlab.com/apparmor/apparmor/-/wikis/AppArmor_Core_Policy_Reference)
+- [F**k AppArmor](https://presentations.nordisch.org/apparmor/) (crash course)
+- https://wiki.debian.org/AppArmor
+- https://wiki.ubuntu.com/AppArmor
 - https://github.com/qarmin/czkawka/
 - https://github.com/yadifa/yadifa
 - https://github.com/JaGoLi/ytdl-gui
