@@ -124,4 +124,7 @@ profile youtubedl_gui /usr/{,local/}bin/youtubedl-gui {
   # or deny network access by itself
   deny network tcp,
   deny network udp,
+
+  include if exists <local/usr.local.bin.youtubedl-gui>
+#  #include <local/usr.local.bin.youtubedl-gui>
 }
