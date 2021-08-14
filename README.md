@@ -90,6 +90,7 @@ No auto-update and debug. No access to browser cookies ATM.
 
 #### Excessiveness
 - *disabled* `--exec`
+- *disabled* `.netrc` auth
 
 #### Compatibility
 - yt-dlp
