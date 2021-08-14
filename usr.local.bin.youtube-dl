@@ -22,8 +22,9 @@ profile youtube_dl @{YTDL_PATH} {
 
   owner @{PROC}/@{pid}/{fd/,mounts} r,
 
-  owner @{HOME}/.cache/youtube-dl/{,**}  rwk,
-  owner @{HOME}/.config/youtube-dl/{,**} rwk,
+  owner @{HOME}/.cache/youtube-dl/{,**}   rwk,
+  owner @{HOME}/.config/youtube-dl/{,**}  r,
+#  owner @{HOME}/.netrc                    r,
 
   owner /tmp/ytdl_prg    rw,
   owner /tmp/ytdl_stderr rw,
@@ -84,9 +85,15 @@ profile youtube_dl @{YTDL_PATH} {
   }
 
   # yt-dlp
+       /etc/yt-dlp.conf                r,
+  deny /etc/apt/apt.conf.d/ r,   # ??
+
+  owner @{HOME}/.config/yt-dlp/{,**}  r,
+  owner @{HOME}/.config/yt-dlp.conf   r,
+  owner @{HOME}/yt-dlp.conf{,.txt}    r,
+
   /{,var/}run/uuidd/request rw,
   /usr/share/dpkg/cputable  r,
-  deny /etc/apt/apt.conf.d/ r,   # ??
 
   # Ubuntu
   network tcp,
