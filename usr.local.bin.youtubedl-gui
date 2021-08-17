@@ -34,6 +34,8 @@ profile youtubedl_gui /usr/{,local/}bin/youtubedl-gui {
   deny /usr/share/nvidia/nvidia-application-profiles-* r,
        /usr/libexec/coreutils/libstdbuf.so mr,
 
+  owner @{HOME}/.config/ytdl-gui/{,**}  rwk,
+
   owner @{PROC}/@{pid}/{cmdline,comm}  r,
 
   /dev/tty rw,
