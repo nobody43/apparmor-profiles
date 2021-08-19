@@ -1,0 +1,31 @@
+# vim:syntax=apparmor
+
+#include <tunables/global>
+
+profile yadifad /usr/sbin/yadifad {
+  #include <abstractions/base>
+  #include <abstractions/nameservice>
+#  #include <abstractions/3rd/nameservice-strict>
+  #include <abstractions/openssl>
+  #include <abstractions/nis>
+
+  capability dac_override,
+  capability chown,
+  capability setgid,
+  capability setuid,
+
+  /etc/yadifa/yadifad.conf               r,
+
+        /var/lib/yadifa/**               r,
+  owner /var/lib/yadifa/ydf.??????       rw,
+  owner /var/lib/yadifa/keys/ydf.??????  rw,
+  owner /var/lib/yadifa/xfr/ydf.??????   rw,
+
+  owner /{,var/}run/yadifa/yadifad.pid   rwk,
+  owner /{,var/}run/yadifa/ydf.??????    rw,
+
+  /var/log/yadifa/*.log                  rw,
+  /var/log/yadifa/ydf.??????             rw,
+
+#  #include <local/usr.sbin.yadifad>
+}
