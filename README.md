@@ -76,11 +76,12 @@ Without NetworkManager. Without interactive credentials supplying, so be sure to
 #### Tested on
 - Debian 10
 
-### [yadifa](https://github.com/nobodysu/apparmor-profiles/blob/master/usr.bin.yadifa)
+### [yadifad](https://github.com/nobodysu/apparmor-profiles/blob/master/usr.sbin.yadifad)
 Without transfers.
 
 #### Tested on
 - Debian 10
+- Debian 11
 
 ### [youtube-dl](https://github.com/nobodysu/apparmor-profiles/blob/master/usr.local.bin.youtube-dl)
 No auto-update and debug. No access to browser cookies ATM.
