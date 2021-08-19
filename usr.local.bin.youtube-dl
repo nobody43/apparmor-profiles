@@ -88,6 +88,7 @@ profile youtube_dl @{YTDL_PATH} {
        /etc/yt-dlp.conf                r,
   deny /etc/apt/apt.conf.d/ r,   # ??
 
+  owner @{HOME}/.cache/yt-dlp/{,**}   rwk,
   owner @{HOME}/.config/yt-dlp/{,**}  r,
   owner @{HOME}/.config/yt-dlp.conf   r,
   owner @{HOME}/yt-dlp.conf{,.txt}    r,
