@@ -74,14 +74,13 @@ Without NetworkManager. Without interactive credentials supplying, so be sure to
 - `abstractions/3rd/nameservice-strict`
 
 #### Tested on
-- Debian 10
+- Debian 10-11
 
 ### [yadifad](https://github.com/nobodysu/apparmor-profiles/blob/master/usr.sbin.yadifad)
 Without transfers.
 
 #### Tested on
-- Debian 10
-- Debian 11
+- Debian 10-11
 
 ### [youtube-dl](https://github.com/nobodysu/apparmor-profiles/blob/master/usr.local.bin.youtube-dl)
 No auto-update and debug. No access to browser cookies ATM.
