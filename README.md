@@ -46,7 +46,7 @@ Snap releases are not supported.
 - `local/usr.lib.libreoffice.program.soffice.bin`
 - `usr.bin.ristretto`
 
-#### Excessiveness
+#### Options
 - `w`rite access on home
 - interactive `file-chooser` dialog
 - opening files with `xdg-open`
@@ -59,7 +59,7 @@ Snap releases are not supported.
 
 ### [ristretto](https://github.com/nobodysu/apparmor-profiles/blob/master/usr.bin.ristretto)
 
-#### Excessiveness
+#### Options
 - file deletion by `w`rite access
 - editing with `dash` transition
 - *disabled* interactive `file-chooser` dialog
@@ -88,7 +88,7 @@ No auto-update and debug. No access to browser cookies ATM.
 #### Dependencies
 - `abstractions/3rd/nameservice-strict`
 
-#### Excessiveness
+#### Options
 - *disabled* `--exec`
 - *disabled* `.netrc` auth
 
@@ -107,7 +107,7 @@ Flatpack releases are not supported.
 - `abstractions/3rd/nameservice-strict`
 - `usr.local.bin.youtube-dl`
 
-#### Excessiveness
+#### Options
 - *disabled* interactive `file-chooser` dialog
 - *disabled* `dbus-overwrite`
 - *disabled* `qt5-settings-write`
