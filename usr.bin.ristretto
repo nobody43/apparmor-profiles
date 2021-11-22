@@ -1,11 +1,17 @@
 # vim:syntax=apparmor
 
-abi <abi/3.0>,
-
 #include <tunables/global>
+#include <tunables/3rd/exts-image>
 
-# changeme; /home already included except dotfiles
-@{PIC_DIRS}=/usr/share /var/local /media /mnt /tmp
+#@{more_exts}                = [xX][xX][xX]
+
+# adjust in local; /home already included except dotfiles
+@{RISTRETTO_DIRS_RO}        = /usr/share
+@{RISTRETTO_DIRS_RW}        = /var/local /media /mnt /tmp
+@{RISTRETTO_EXTS}           = @{IMAGE_EXTS}
+@{RISTRETTO_EXTS_SILENCED}  = [hH][tT][mM]
+@{RISTRETTO_EXTS_SILENCED} += [hH][tT][mM][lL]
+#include if exists <local/tunables/3rd/usr.bin.ristretto>
 
 profile ristretto /usr/bin/ristretto {
   /usr/bin/ristretto r,
@@ -17,40 +23,62 @@ profile ristretto /usr/bin/ristretto {
   #include <abstractions/freedesktop.org>
   #include <abstractions/private-files>
   #include <abstractions/private-files-strict>
-#  #include <abstractions/3rd/file-chooser>
+#  #include <abstractions/gnome>                                # relaxed with large footprint
+  #include if exists <abstractions/3rd/file-chooser_ristretto>
+  #include if exists <abstractions/3rd/network-allow_ristretto> # pictures on smb shares, etc
 
-  owner @{HOME}/{,[^.]*}{,/**}  rw, # home itself, not dotfiles, nested files
-        @{PIC_DIRS}/{,**}       r,  # read
-        @{PIC_DIRS}/{,**}        w, # write (=delete)
+        @{RISTRETTO_DIRS_RO}/{,**/}                        r,   # read dirs
+        @{RISTRETTO_DIRS_RO}/**.@{RISTRETTO_EXTS}          r,   # read files
+        @{RISTRETTO_DIRS_RW}/{,**/}                        r,
+        @{RISTRETTO_DIRS_RW}/**.@{RISTRETTO_EXTS}          rwk, # write files (=delete)
 
-  deny /var/log/{,**} mrwkl,  # protect the logs
+  owner @{HOME}/{,[^.]*,**/}                               r,   # dirs,  but not dotdirs
+  owner @{HOME}/[^.]{,**/}*.@{RISTRETTO_EXTS}              rwk, # files, but not dotfiles
+  owner /{,var/}run/user/[0-9]*/gvfs/{,**/}                r,   # USB storage
+  owner /{,var/}run/user/[0-9]*/gvfs/**.@{RISTRETTO_EXTS}  rwk,
 
-  owner @{HOME}/.config/ristretto/{,**}      rwk,
-  owner @{HOME}/.local/share/ristretto/{,**} rwk,
-  owner @{HOME}/.local/share/                r,
-  owner @{HOME}/.cache/thumbnails/{,**}      r,
+  owner @{HOME}/.cache/.fr-*/{,**/}                        r,   # file roller
+  owner @{HOME}/.cache/.fr-*/**.@{RISTRETTO_EXTS}          r,
+  owner @{HOME}/.cache/thumbnails/{,**}                    r,
 
+  deny  /**.@{RISTRETTO_EXTS_SILENCED}                     r,
+
+  # Trashing; dirs must exist
+  owner @{HOME}/.local/share/Trash/**.@{RISTRETTO_EXTS}{,.trashinfo}{,.??????} rwk,
+  owner @{HOME}/.local/share/gvfs-metadata/**              r,
+
+  owner @{HOME}/.config/ristretto/{,**}                    rwk,
+  owner @{HOME}/.local/share/ristretto/{,**}               rwk,
+
+  deny  @{HOME}/.local/share/                              r,
+  deny  @{HOME}/.xsession-errors                           r,
+  deny  @{HOME}/.xfce4-session.verbose-log{,.last}         r,
+
+  owner @{PROC}/@{pid}/fd/ r,
   owner @{PROC}/@{pid}/{mountinfo,mounts} r,
   /{,var/}run/mount/utab r,
 
-  /etc/xfce[0-9]/defaults.list r,
   /etc/magic r,
+  /usr/share/xfce[3-5]/applications/mimeinfo.cache r,
+  /etc/xfce[0-9]/defaults.list r,
+  /usr/share/*ubuntu/applications/defaults.list r,
+  /usr/share/themes/** r,
   /var/lib/snapd/desktop/icons/ r,
-  owner /tmp/dbus-* w,
+  owner /tmp/dbus-* rw,
 
   # gnome-tiny
   /etc/gnome/defaults.list r,
   /etc/gtk-[0-9].[0-9]*/settings.ini r,
 
   # edit button; comment out for significantly less footprint
-  /{,usr/}bin/dash rPx -> ristretto//dash,
-  owner @{PROC}/@{pid}/fd/ r,
+  /{,usr/}bin/dash                                           rPx -> ristretto_opener, # Ubuntu
+  /usr/lib/@{multiarch}/glib-[0-9].[0-9]*/gio-launch-desktop rPx -> ristretto_opener, # Debian
 
   dbus (send, receive)
        bus="session"
        path="/org/freedesktop/thumbnails/Thumbnailer1"
        interface="org.freedesktop.thumbnails.Thumbnailer1"
-       member="{Started,Ready,Finished,Queue,Dequeue}"
+       member="{Started,Ready,Finished,Queue,Dequeue,Error}"
        peer=(name=:*),
 
   dbus send
@@ -137,14 +165,10 @@ profile ristretto /usr/bin/ristretto {
        member="ListMountableInfo"
        peer=(name=:*),
 
-  # pictures on smb shares, etc
-  network tcp,
-  network udp,
-
-  include if exists <local/usr.bin.ristretto>
+  #include if exists <local/usr.bin.ristretto>
 }
 
-profile ristretto//dash {
+profile ristretto_opener {
   /{,usr/}bin/dash r,
   #include <abstractions/base>
   #include <abstractions/ubuntu-helpers>
@@ -154,5 +178,5 @@ profile ristretto//dash {
   # sanitized, slightly less bad than Ux; "Use at your own risk."
   /usr/bin/gimp-[2-3].[0-9]{,[0-9]} Cx -> sanitized_helper,
 
-  include if exists <local/usr.bin.ristretto_dash>
+  #include if exists <local/usr.bin.ristretto_dash>
 }

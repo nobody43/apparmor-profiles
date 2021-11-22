@@ -1,0 +1,4 @@
+# vim:syntax=apparmor
+
+  network tcp,
+  network udp,
