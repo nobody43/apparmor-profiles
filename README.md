@@ -65,7 +65,8 @@ Snap releases are not supported.
 - *disabled* interactive `file-chooser` dialog
 
 #### Tested on
-- Xubuntu 21.04
+- Debian 10
+- Xubuntu 21.04-21.10
 
 ### [openvpn](https://github.com/nobodysu/apparmor-profiles/blob/master/usr.sbin.openvpn)
 Without NetworkManager. Without interactive credentials supplying, so be sure to provide them in config with `auth-user-pass`.
