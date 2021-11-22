@@ -1,0 +1,40 @@
+# vim:syntax=apparmor
+
+#include <tunables/global>
+
+# adjust in local
+@{GLDL_DIRS} = @{HOME}/Downloads/gallery-dl @{HOME}/gallery-dl /tmp/gallery-dl
+#include if exists <local/tunables/3rd/usr.local.bin.gallery-dl>
+
+profile gallery_dl /usr/{,local/}bin/gallery-dl {
+  /usr/{,local/}bin/gallery-dl rix,
+  #include <abstractions/base>
+  #include <abstractions/openssl>
+  #include <abstractions/ssl_certs>
+  #include <abstractions/python>
+  #include <abstractions/3rd/nameservice-strict>
+
+  owner @{GLDL_DIRS}/{,**}       rwk,
+
+  /etc/gallery-dl.conf r,
+
+  owner @{HOME}/.config/gallery-dl/config.json r,
+  owner @{HOME}/.gallery-dl.conf               r,
+  owner @{HOME}/.cache/gallery-dl/{,**}        rwk,
+
+  owner @{HOME}/.netrc r,
+
+  /usr/local/lib{,32,64}/python{2.[4-7],3.[0-9],3.[0-9][0-9]}/{site,dist}-packages/gallery_dl/{,**} r,
+  /usr/lib/python3/dist-packages/idna/__pycache__/{,**} rw,
+
+  deny /usr/local/bin/ r,  # ??
+
+  # Ubuntu
+  network inet dgram,
+  network inet6 dgram,
+  network inet stream,
+  network inet6 stream,
+  network netlink raw,
+
+  #include if exists <local/usr.local.bin.gallery-dl>
+}
