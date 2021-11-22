@@ -2,9 +2,10 @@
 
 #include <tunables/global>
 
-# changeme
-@{DOWNLOAD_FOLDERS}=@{HOME}/Downloads /tmp/ytdl
-@{YTDL_PATH}=/usr/{,local/}bin/{youtube-dl,yt-dlp}*
+# adjust in local
+@{YTDL_DIRS} = @{HOME}/Downloads /tmp/ytdl
+@{YTDL_BINS} = /usr/{,local/}bin/{youtube-dl,yt-dlp}*
+#include if exists <local/tunables/3rd/usr.local.bin.youtubedl-gui>
 
 profile youtubedl_gui /usr/{,local/}bin/youtubedl-gui {
   /usr/{,local/}bin/youtubedl-gui r,
@@ -19,10 +20,10 @@ profile youtubedl_gui /usr/{,local/}bin/youtubedl-gui {
   #include <abstractions/private-files-strict>
 #  #include <abstractions/nameservice>
   #include <abstractions/3rd/nameservice-strict>
-#  #include <abstractions/3rd/file-chooser>
-#  #include <abstractions/3rd/dbus-overwrite>
+  #include if exists <abstractions/3rd/file-chooser_ytdlgui>
+  #include if exists <abstractions/3rd/dbus-overwrite_ytdlgui>
 
-  @{DOWNLOAD_FOLDERS}/** rw,
+  @{YTDL_DIRS}/** rwk,
 
   # qt5-settings-write-deny (modification)
   deny owner @{HOME}/.config/QtProject.conf* wkl,
@@ -51,7 +52,7 @@ profile youtubedl_gui /usr/{,local/}bin/youtubedl-gui {
   /{,usr/}bin/grep   rix,
   /{,usr/}bin/bash   rix,
 
-  @{YTDL_PATH}       rPx -> youtube_dl,
+  @{YTDL_BINS}       rPx -> youtube_dl,
 
   dbus send
        bus="session"
@@ -127,6 +128,5 @@ profile youtubedl_gui /usr/{,local/}bin/youtubedl-gui {
   deny network tcp,
   deny network udp,
 
-  include if exists <local/usr.local.bin.youtubedl-gui>
-#  #include <local/usr.local.bin.youtubedl-gui>
+  #include if exists <local/usr.local.bin.youtubedl-gui>
 }

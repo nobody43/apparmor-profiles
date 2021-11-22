@@ -2,19 +2,20 @@
 
 #include <tunables/global>
 
-# changeme
-@{DOWNLOAD_FOLDERS}=@{HOME}/Downloads /tmp/ytdl
-@{YTDL_PATH}=/usr/{,local/}bin/{youtube-dl,yt-dlp}*
+# adjust in local
+@{YTDL_DIRS} = @{HOME}/Downloads /tmp/ytdl
+@{YTDL_BINS} = /usr/{,local/}bin/{youtube-dl,yt-dlp}*
+#include if exists <local/tunables/3rd/usr.local.bin.youtube-dl>
 
-profile youtube_dl @{YTDL_PATH} {
-  @{YTDL_PATH} r,
+profile youtube_dl @{YTDL_BINS} {
+  @{YTDL_BINS} r,
   #include <abstractions/base>
   #include <abstractions/openssl>
   #include <abstractions/ssl_certs>
 #  #include <abstractions/nameservice>
   #include <abstractions/3rd/nameservice-strict>
 
-  @{DOWNLOAD_FOLDERS}/** rwk,
+  @{YTDL_DIRS}/** rwk,
 
   /etc/youtube-dl.conf   r,
   /etc/mime.types        r,
@@ -24,7 +25,7 @@ profile youtube_dl @{YTDL_PATH} {
 
   owner @{HOME}/.cache/youtube-dl/{,**}   rwk,
   owner @{HOME}/.config/youtube-dl/{,**}  r,
-#  owner @{HOME}/.netrc                    r,
+  owner @{HOME}/.netrc                    r,
 
   owner /tmp/ytdl_prg    rw,
   owner /tmp/ytdl_stderr rw,
@@ -36,6 +37,9 @@ profile youtube_dl @{YTDL_PATH} {
   /{,usr/}bin/stty                               rix,
   /{,usr/}sbin/ldconfig{,.real}                  rix,
   /{,usr/}bin/uname                              rix,
+  /{,usr/}bin/file                               rix,
+
+  /etc/magic r,
 
   /usr/local/lib{,32,64}/python{2.[4-7],3.[0-9],3.[0-9][0-9]}/{site,dist}-packages/{,youtube_dl/**} r,
   deny /usr/bin/ r,  # ?; noisy
@@ -45,12 +49,18 @@ profile youtube_dl @{YTDL_PATH} {
     /usr/bin/ffmpeg r,
     #include <abstractions/base>
 
-    @{DOWNLOAD_FOLDERS}/** rw,
+    @{YTDL_DIRS}/** rw,
 
     /sys/devices/system/node/{,node[0-9]*/meminfo} r,
 
-    include if exists <local/usr.local.bin.youtube-dl_ffmpeg>
-#    #include <local/usr.local.bin.youtube-dl_ffmpeg>
+    # livestreams
+#    #include <abstractions/3rd/nameservice-strict>
+#    #include <abstractions/ssl_certs>
+#    network tcp,
+#    network udp,
+#    network netlink raw,
+
+    #include if exists <local/usr.local.bin.youtube-dl_ffmpeg>
   }
 
   /usr/bin/ffprobe Cx,
@@ -58,15 +68,14 @@ profile youtube_dl @{YTDL_PATH} {
     /usr/bin/ffprobe r,
     #include <abstractions/base>
 
-    @{DOWNLOAD_FOLDERS}/** r,
+    @{YTDL_DIRS}/** r,
 
     /sys/devices/system/node/{,node[0-9]*/meminfo} r,
 
     # some media-providers require network
     network tcp,
 
-    include if exists <local/usr.local.bin.youtube-dl_ffprobe>
-#    #include <local/usr.local.bin.youtube-dl_ffprobe>
+    #include if exists <local/usr.local.bin.youtube-dl_ffprobe>
   }
 
   /{,usr/}bin/dash Cx,
@@ -74,14 +83,13 @@ profile youtube_dl @{YTDL_PATH} {
     /{,usr/}bin/dash r,
     #include <abstractions/base>
 
-    @{DOWNLOAD_FOLDERS}/** rw,
+    @{YTDL_DIRS}/** rw,
 
     # --exec commands goes here
 #    /bin/mv         rix,
 #    /bin/cp          Ux,   # Unrestricted, DANGEROUS
 
-    include if exists <local/usr.local.bin.youtube-dl_dash>
-#    #include <local/usr.local.bin.youtube-dl_dash>
+    #include if exists <local/usr.local.bin.youtube-dl_dash>
   }
 
   # yt-dlp
@@ -101,6 +109,5 @@ profile youtube_dl @{YTDL_PATH} {
   network udp,
   network netlink raw,
 
-  include if exists <local/usr.local.bin.youtube-dl>
-#  #include <local/usr.local.bin.youtube-dl>
+  #include if exists <local/usr.local.bin.youtube-dl>
 }
