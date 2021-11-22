@@ -6,8 +6,8 @@
 @{ETC_DIRS} = /etc /var/local/etc
 #include if exists <local/tunables/3rd/usr.lib.systemd.systemd-timesyncd>
 
-#profile systemd_timesyncd /{,usr/}lib/systemd/systemd-timesyncd {                            # Debian
-profile systemd_timesyncd /{,usr/}lib/systemd/systemd-timesyncd flags=(attach_disconnected) { # Ubuntu
+profile systemd_timesyncd /{,usr/}lib/systemd/systemd-timesyncd {                             # Debian
+#profile systemd_timesyncd /{,usr/}lib/systemd/systemd-timesyncd flags=(attach_disconnected) { # Ubuntu
   #include <abstractions/base>
   #include <abstractions/3rd/nameservice-strict>
 
