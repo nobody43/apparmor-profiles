@@ -16,12 +16,6 @@ Error log is `/var/log/syslog` by default.
 # aa-enforce /etc/apparmor.d/usr.bin.curl
 ```
 
-## Deinstallation
-```
-# aa-disable /etc/apparmor.d/usr.bin.curl
-# rm /etc/apparmor.d/usr.bin.curl
-```
-
 ## Profiles
 ### [curl](https://github.com/nobodysu/apparmor-profiles/blob/master/usr.bin.curl)
 WARNING: custom applications might fail without adjustment!
@@ -97,8 +91,8 @@ No auto-update and debug. No access to browser cookies ATM.
 - yt-dlp
 
 #### Tested on
-- Debian 10 (incompatible with `include if exists`)
-- Xubuntu 21.04
+- Debian 10
+- Xubuntu 21.04-21.10
 - Ubuntu 21.04
 
 ### [youtubedl-gui](https://github.com/nobodysu/apparmor-profiles/blob/master/usr.local.bin.youtubedl-gui)
@@ -115,9 +109,19 @@ Flatpack releases are not supported.
 - *disabled* `network` access
 
 #### Tested on
-- Debian 10 (incompatible with `include if exists`)
-- Xubuntu 21.04
+- Debian 10
+- Xubuntu 21.04-21.10
 - Ubuntu 21.04
+
+### [usr.local.bin.gallery-dl](https://github.com/nobodysu/apparmor-profiles/blob/master/usr.local.bin.gallery-dl)
+#### Tested on
+- Debian 10
+- Xubuntu 21.10
+
+### [usr.lib.systemd.systemd-timesyncd](https://github.com/nobodysu/apparmor-profiles/blob/master/usr.lib.systemd.systemd-timesyncd)
+#### Tested on
+- Debian 10-11
+- Xubuntu 21.10
 
 # Links
 - [F**k AppArmor](https://presentations.nordisch.org/apparmor/) (crash course)
