@@ -114,6 +114,7 @@ Flatpack releases are not supported.
 - Ubuntu 21.04
 
 ### [usr.local.bin.gallery-dl](https://github.com/nobodysu/apparmor-profiles/blob/master/usr.local.bin.gallery-dl)
+pip version only.
 #### Tested on
 - Debian 10
 - Xubuntu 21.10
