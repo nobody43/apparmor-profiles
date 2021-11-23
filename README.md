@@ -27,9 +27,9 @@ WARNING: custom applications might fail without adjustment!
 - Pi-hole (commented out by default)
 
 #### Tested on
-- Debian 10
-- Armbian Buster
-- Xubuntu 21.04 (commented out by default)
+- Debian `10`
+- Armbian `Buster`
+- Xubuntu `21.04` (commented out by default)
 
 ### [czkawka](https://github.com/nobodysu/apparmor-profiles/blob/master/usr.local.bin.linux_czkawka)
 Snap releases are not supported.
@@ -48,8 +48,8 @@ Snap releases are not supported.
 - *disabled* `dbus-overwrite`
 
 #### Tested on
-- Xubuntu 21.04
-- Ubuntu 21.04
+- Xubuntu `21.04`
+- Ubuntu `21.04`
 
 ### [ristretto](https://github.com/nobodysu/apparmor-profiles/blob/master/usr.bin.ristretto)
 
@@ -59,8 +59,8 @@ Snap releases are not supported.
 - *disabled* interactive `file-chooser` dialog
 
 #### Tested on
-- Debian 10
-- Xubuntu 21.04-21.10
+- Debian `10`
+- Xubuntu `21.04`-`21.10`
 
 ### [openvpn](https://github.com/nobodysu/apparmor-profiles/blob/master/usr.sbin.openvpn)
 Without NetworkManager. Without interactive credentials supplying, so be sure to provide them in config with `auth-user-pass`.
@@ -69,13 +69,13 @@ Without NetworkManager. Without interactive credentials supplying, so be sure to
 - `abstractions/3rd/nameservice-strict`
 
 #### Tested on
-- Debian 10-11
+- Debian `10`-`11`
 
 ### [yadifad](https://github.com/nobodysu/apparmor-profiles/blob/master/usr.sbin.yadifad)
 Without transfers.
 
 #### Tested on
-- Debian 10-11
+- Debian `10`-`11`
 
 ### [youtube-dl](https://github.com/nobodysu/apparmor-profiles/blob/master/usr.local.bin.youtube-dl)
 No auto-update and debug. No access to browser cookies ATM.
@@ -91,9 +91,9 @@ No auto-update and debug. No access to browser cookies ATM.
 - yt-dlp
 
 #### Tested on
-- Debian 10
-- Xubuntu 21.04-21.10
-- Ubuntu 21.04
+- Debian `10`
+- Xubuntu `21.04`-`21.10`
+- Ubuntu `21.04`
 
 ### [youtubedl-gui](https://github.com/nobodysu/apparmor-profiles/blob/master/usr.local.bin.youtubedl-gui)
 Flatpack releases are not supported.
@@ -109,20 +109,20 @@ Flatpack releases are not supported.
 - *disabled* `network` access
 
 #### Tested on
-- Debian 10
-- Xubuntu 21.04-21.10
-- Ubuntu 21.04
+- Debian `10`
+- Xubuntu `21.04`-`21.10`
+- Ubuntu `21.04`
 
 ### [usr.local.bin.gallery-dl](https://github.com/nobodysu/apparmor-profiles/blob/master/usr.local.bin.gallery-dl)
 pip version only.
 #### Tested on
-- Debian 10
-- Xubuntu 21.10
+- Debian `10`
+- Xubuntu `21.10`
 
 ### [usr.lib.systemd.systemd-timesyncd](https://github.com/nobodysu/apparmor-profiles/blob/master/usr.lib.systemd.systemd-timesyncd)
 #### Tested on
-- Debian 10-11
-- Xubuntu 21.10
+- Debian `10`-`11`
+- Xubuntu `21.10`
 
 # Links
 - [F**k AppArmor](https://presentations.nordisch.org/apparmor/) (crash course)
