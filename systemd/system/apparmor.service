@@ -1,0 +1,3 @@
+# Add this line to the following block and run 'systemctl daemon-reload'
+[Unit]
+Before=systemd-timesyncd.service
