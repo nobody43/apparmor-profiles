@@ -1,0 +1,29 @@
+
+include <tunables/global>
+
+profile murmurd /{,usr/}sbin/murmurd {
+  /{,usr/}sbin/murmurd r,
+  include <abstractions/base>
+  include <abstractions/openssl>
+  include <abstractions/ssl_certs>
+  include <abstractions/3rd/nameservice-strict>
+
+  capability chown,
+  capability setgid,
+  capability setuid,
+  capability dac_override,
+  capability sys_resource,
+
+  /etc/mumble-server.ini r,
+
+  owner /{,var/}run/mumble-server/*.pid rw,
+
+  owner /var/lib/mumble-server/{,**}    rw,
+  owner /var/lib/mumble-server/*.sqlite rwk,
+
+  /var/log/mumble-server/*.log rw,
+
+  /{,usr/}bin/lsb_release Px -> lsb_release,
+
+  include if exists <local/murmurd>
+}
