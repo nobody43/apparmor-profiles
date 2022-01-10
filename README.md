@@ -113,16 +113,21 @@ Flatpack releases are not supported.
 - Xubuntu `21.04`-`21.10`
 - Ubuntu `21.04`
 
-### [usr.local.bin.gallery-dl](https://github.com/nobodysu/apparmor-profiles/blob/master/usr.local.bin.gallery-dl)
+### [gallery-dl](https://github.com/nobodysu/apparmor-profiles/blob/master/usr.local.bin.gallery-dl)
 pip version only.
 #### Tested on
 - Debian `10`
 - Xubuntu `21.10`
 
-### [usr.lib.systemd.systemd-timesyncd](https://github.com/nobodysu/apparmor-profiles/blob/master/usr.lib.systemd.systemd-timesyncd)
+### [systemd-timesyncd](https://github.com/nobodysu/apparmor-profiles/blob/master/usr.lib.systemd.systemd-timesyncd)
 #### Tested on
 - Debian `10`-`11`
 - Xubuntu `21.10`
+
+### [murmurd](https://github.com/nobodysu/apparmor-profiles/blob/master/murmurd)
+No DBus or ICE.
+#### Tested on
+- Debian `11`
 
 # Links
 - [F**k AppArmor](https://presentations.nordisch.org/apparmor/) (crash course)
