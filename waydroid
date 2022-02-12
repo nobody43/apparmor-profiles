@@ -1,0 +1,280 @@
+# vim:syntax=apparmor
+
+abi <abi/3.0>,
+
+include <tunables/global>
+
+@{IPTABLES_BINS}  = /usr/sbin/xtables-legacy-multi
+@{IPTABLES_BINS} += /usr/sbin/xtables-nft-multi
+
+@{WAYDROID_BINS}  = /{,usr/}bin/waydroid
+@{WAYDROID_BINS} += /{,usr/}lib/waydroid/waydroid.py
+profile waydroid @{WAYDROID_BINS} {
+  @{WAYDROID_BINS} r,
+  include <abstractions/base>
+  include <abstractions/openssl>
+  include <abstractions/ssl_certs>
+  include <abstractions/nameservice-strict>
+
+  capability fsetid,
+  capability sys_nice,
+
+  /etc/gbinder.d/{,*} r,
+
+  /dev/ r,
+  /dev/dri/ rw,
+  /dev/dri/by-path/ rw,
+  /dev/dri/card[0-9]* rw,
+  /dev/fb[0-9]* rw,
+  /dev/anbox-binder rw,
+  /dev/puddlejumper r,
+  /dev/bonder r,
+  /dev/binder r,
+  /dev/anbox-vndbinder rw,
+  /dev/vndpuddlejumper r,
+  /dev/vndbonder r,
+  /dev/vndbinder r,
+  /dev/anbox-hwbinder rw,
+  /dev/hwpuddlejumper r,
+  /dev/hwbonder r,
+  /dev/hwbinder r,
+  /dev/binderfs/* r,
+  /dev/binderfs/binder-control rw,
+  /dev/ashmem rw,
+
+  # python-strict
+  /{,usr/}lib{,32,64}/python3.[0-9]{,[0-9]}/**.{egg,py,pth}       r,
+  /{,usr/}lib{,32,64}/python3.[0-9]{,[0-9]}/{site,dist}-packages/ r,
+  /{,usr/}local/lib{,32,64}/python3.[0-9]{,[0-9]}/**.{egg,py,pth}       r,
+  /{,usr/}local/lib{,32,64}/python3.[0-9]{,[0-9]}/{site,dist}-packages/ r,
+  /{,usr/}bin/python3.[0-9]{,[0-9]} rix,
+
+  owner /{,usr/}lib/waydroid/tools/actions/__pycache__/{,**} rw,
+
+  /{,usr/}bin/rm          rix,
+  /{,usr/}bin/tail        rix,
+  /{,usr/}bin/mkdir       rix,
+  /{,usr/}bin/cp          rix,
+  /{,usr/}bin/mv          rix,
+  /{,usr/}bin/sed         rix,
+  /{,usr/}bin/chmod       rix,
+
+  /{,usr/}bin/mount       rPUx,
+  /{,usr/}bin/umount      rPUx,
+  /{,usr/}bin/lxc-info    rPx -> waydroid_lxc-info,
+  /{,usr/}bin/lxc-stop    rPx -> waydroid_lxc-stop,
+  /{,usr/}bin/lxc-start   rPx -> waydroid_lxc-start,
+  /{,usr/}bin/lxc-attach  rPx -> waydroid_lxc-attach,
+  /{,usr/}lib/waydroid/data/scripts/waydroid-net.sh rPx,
+
+  owner @{HOME}/.local/share/waydroid/{,**} rw,
+  owner @{HOME}/.local/share/applications/[wW]aydroid*.desktop rw,
+
+  owner @{PROC}/@{pid}/mounts r,
+  owner @{PROC}/@{pid}/fd/ r,
+
+  /var/lib/waydroid/{,**} rw,
+
+  /tmp/ r,
+
+  /{,usr/}bin/kmod rCx,
+  profile kmod /{,usr/}bin/kmod {
+    /{,usr/}bin/kmod r,
+    include <abstractions/base>
+
+    capability sys_module,
+
+    /etc/modprobe.d/{,*} r,
+
+    owner @{PROC}/cmdline r,
+
+    include if exists <local/waydroid_kmod>
+  }
+
+  include if exists <local/waydroid>
+}
+
+profile waydroid_lxc-info {
+  /{,usr/}bin/lxc-info r,
+  include <abstractions/base>
+
+  owner /{,var/}run/lxc/lock/{,**} rw,
+  owner /{,var/}run/lxc/lock/var/lib/waydroid/lxc/.waydroid k,
+
+  /var/lib/waydroid/lxc/waydroid/config r,
+  /var/lib/waydroid/lxc/waydroid/config_nodes r,
+
+  include if exists <local/waydroid_lxc-info>
+}
+
+profile waydroid_lxc-stop {
+  /{,usr/}bin/lxc-stop r,
+  include <abstractions/base>
+
+  owner /{,var/}run/lxc/lock/{,**} rw,
+  owner /{,var/}run/lxc/lock/var/lib/waydroid/lxc/.waydroid k,
+
+  /var/lib/waydroid/lxc/waydroid/config r,
+  /var/lib/waydroid/lxc/waydroid/config_nodes r,
+  /var/lib/waydroid/lxc r,
+
+  include if exists <local/waydroid_lxc-stop>
+}
+
+profile waydroid_lxc-start flags=(attach_disconnected) {
+  /{,usr/}bin/lxc-start r,
+  include <abstractions/base>
+
+  capability bpf,
+  capability sys_admin,
+  capability net_admin,
+  capability perfmon,
+  capability dac_override,
+  capability sys_module,
+  capability dac_read_search,
+
+  owner /{,var/}run/lxc/lock/var/lib/waydroid/lxc/.waydroid rwk,
+
+  /var/lib/waydroid/waydroid.log rw,
+
+  /var/lib/waydroid/lxc/waydroid/config r,
+  /var/lib/waydroid/lxc/waydroid/config_nodes r,
+
+  # recheck, TODO
+  / r,
+  @{sys}/module/apparmor/parameters/enabled r,
+  @{sys}/kernel/security/apparmor/features/domain/stack r,
+  @{sys}/kernel/security/apparmor/features/domain/version r,
+  @{sys}/kernel/security/apparmor/.ns_stacked r,
+
+        @{sys}/fs/cgroup/cgroup.controllers r,
+  owner @{sys}/fs/cgroup/lxc.*.waydroid*/{,**} rw,
+  owner @{sys}/fs/cgroup/lxc.pivot/ rw,
+  owner @{sys}/fs/cgroup/lxc.pivot/cgroup.procs rw,
+  owner @{sys}/fs/cgroup/cgroup.subtree_control rw,
+
+  owner @{PROC}/@{pids}/task/ r,
+  owner @{PROC}/@{pids}/fd/ r,
+  owner @{PROC}/@{pids}/cgroup r,
+  owner @{PROC}/@{pids}/mountinfo r,
+  owner @{PROC}/@{pids}/attr/current r,
+
+  /{,usr/}bin/{,ba,da}sh rPx -> waydroid_lxc-start_sh,
+
+  mount ->   /{,usr/}lib/@{multiarch}/lxc/rootfs/{,**},
+  pivot_root /{,usr/}lib/@{multiarch}/lxc/rootfs/{,**},
+
+  file,
+  signal,
+
+  mount options=(rw, make-slave) -> **,
+  mount options=(rw, make-rslave) -> **,
+
+  umount,
+
+  change_profile -> waydroid_init,  # not transitioning
+
+  include if exists <local/waydroid_lxc-start>
+}
+
+profile waydroid_init flags=(attach_disconnected complain) {
+  /system/bin/init rix,
+
+  capability sys_nice,
+  capability fsetid,
+  capability setgid,
+  capability mknod,
+  capability sys_admin,
+
+  /dev/null rw,
+  /dev/random rw,
+  /dev/urandom rw,
+  /dev/kmsg rw,
+  /dev/ptmx rw,
+  /dev/kmsg_debug rw,
+  /dev/socket/ rw,
+
+  / r,
+  /mnt/vendor/ rw,
+  /mnt/product/ rw,
+
+  owner @{PROC}/cmdline rw,
+  owner @{PROC}/filesystems r,
+
+  @{sys}/kernel/mm/transparent_hugepage/enabled r,
+
+  /system/lib64/*.so mr,
+  /system/lib64/bootstrap/*.so mr,
+  /system/bin/bootstrap/linker64 r,
+
+  /var/lib/waydroid/waydroid.log rw,
+}
+
+profile waydroid_lxc-start_sh {
+  /{,usr/}bin/{,ba,da}sh r,
+  include <abstractions/base>
+
+  include if exists <local/waydroid_lxc-start_sh>
+}
+
+profile waydroid_lxc-attach {
+  /{,usr/}bin/lxc-attach r,
+  include <abstractions/base>
+
+  owner @{PROC}/@{pids}/cmdline r,
+
+  include if exists <local/waydroid_lxc-attach>
+}
+
+profile waydroid-net /{,usr/}lib/waydroid/data/scripts/waydroid-net.sh {
+  /{,usr/}lib/waydroid/data/scripts/waydroid-net.sh r,
+  include <abstractions/base>
+  include <abstractions/nameservice-strict>
+
+  capability net_admin,
+  capability kill,
+
+  signal (send) set=(kill) peer={,/usr/sbin/}dnsmasq,
+
+  /{,usr/}bin/{,da,ba}sh   rix,
+  /{,usr/}bin/which        rix,
+  /{,usr/}bin/touch        rix,
+  /{,usr/}bin/mkdir        rix,
+  /{,usr/}bin/getent       rix,
+  /{,usr/}bin/rm           rix,
+  /{,usr/}bin/ls           rix,
+  /{,usr/}bin/cat          rix,
+
+  /{,usr/}{,s}bin/ip       rPUx,
+  /{,usr/}{,s}bin/dnsmasq  rPx,
+
+  owner /{,var/}run/waydroid-lxc/             rw,
+  owner /{,var/}run/waydroid-lxc/network_up   rw,
+        /{,var/}run/waydroid-lxc/dnsmasq.pid  rw,
+
+  @{sys}/devices/virtual/net/waydroid[0-9]*/brif/ r,
+
+  @{PROC}/sys/net/ipv4/ip_forward          rw,
+  @{PROC}/sys/net/ipv6/conf/all/forwarding rw,
+  @{PROC}/sys/net/ipv6/conf/*/autoconf     rw,
+  @{PROC}/sys/net/ipv6/conf/*/accept_dad   rw,
+
+  @{IPTABLES_BINS} rPx -> waydroid-net_iptables,
+
+  include if exists <local/waydroid-net>
+}
+
+profile waydroid-net_iptables {
+  @{IPTABLES_BINS} r,
+  include <abstractions/base>
+  include <abstractions/nameservice-strict>
+
+  capability net_raw,
+  capability net_admin,
+
+  /etc/protocols r,
+
+  owner /{,var/}run/xtables.lock rwk,
+
+  include if exists <local/waydroid-net_iptables>
+}

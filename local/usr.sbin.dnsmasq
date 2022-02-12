@@ -1,0 +1,4 @@
+
+  /{,var/}run/waydroid-lxc/dnsmasq.pid rw,
+
+  signal (receive) set=(kill) peer=waydroid-net,
