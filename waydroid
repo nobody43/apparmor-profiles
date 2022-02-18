@@ -172,7 +172,8 @@ profile waydroid_lxc-start flags=(attach_disconnected) {
 
   umount,
 
-  change_profile -> waydroid_init,  # not transitioning
+#  change_profile -> waydroid_init,  # not transitioning
+  change_profile -> unconfined,
 
   include if exists <local/waydroid_lxc-start>
 }
