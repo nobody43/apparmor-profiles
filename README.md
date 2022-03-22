@@ -136,3 +136,4 @@ No DBus or ICE.
 - https://github.com/qarmin/czkawka/
 - https://github.com/yadifa/yadifa
 - https://github.com/JaGoLi/ytdl-gui
+- https://github.com/roddhjav/apparmor.d (upstream)
