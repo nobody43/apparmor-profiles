@@ -1,0 +1,491 @@
+# vim:syntax=apparmor
+
+include <tunables/global>
+
+# change in local
+@{ETC_DIRS} = /etc /var/local
+@{FTL_BINS} = /usr/bin/pihole_FTL /srv/bin/pihole-FTL
+@{PIH_BINS} = /{,usr/}{,local/}bin/pihole
+@{WWW_PATHS} = /srv_ro/www /srv/www
+@{INSTALL_BINS}  = /opt/pihole/update.sh
+@{INSTALL_BINS} += /opt/pihole/uninstall.sh
+@{INSTALL_BINS} += @{ETC_DIRS}/.pihole/automated\ install/*.sh
+@{GRAVITY_BINS}  = /opt/pihole/gravity.sh
+@{GRAVITY_BINS} += @{ETC_DIRS}/.pihole/advanced/Scripts/database_migration/gravity-db.sh
+
+profile pihole @{PIH_BINS} {
+  @{PIH_BINS} r,
+  include <abstractions/base>
+
+  capability kill,
+
+  /dev/tty rw,
+
+  signal (send) set=(hup,rtmin+2) peer=pihole-FTL,
+
+  /opt/pihole/{,**} r,
+  @{ETC_DIRS}/pihole/{,**} r,
+
+  @{ETC_DIRS}/dnsmasq.conf    r,
+  @{ETC_DIRS}/dnsmasq.d/{,*}  r,
+
+  /var/log/pihole.log      rw,
+  /var/log/pihole-FTL.log  rw,
+  /var/log/pihole/{,*.log} rw,
+
+  /{,var/}run/pihole-FTL.pid r,
+
+  /{,usr/}bin/env       mr,
+  /{,usr/}bin/{,da,ba}sh rix,
+  /{,usr/}bin/tput       rix,
+  /{,usr/}bin/date       rix,
+  /{,usr/}bin/grep       rix,
+  /{,usr/}bin/sed        rix,
+  /{,usr/}bin/tail       rix,
+  /{,usr/}bin/cat        rix,
+  /{,usr/}bin/uname      rix,
+  /{,usr/}bin/{,m,g}awk  rix,
+
+  /{,usr/}bin/git        rPx -> pihole_git,
+  /{,usr/}bin/ldd        rPx -> pihole_ldd,
+  /opt/pihole/*.sh       rPx,
+  @{INSTALL_BINS}        rPx,
+
+  /{,usr/}sbin/service rCx,
+  profile service /{,usr/}sbin/service {
+    /{,usr/}sbin/service r,
+    include <abstractions/base>
+
+    capability sys_ptrace,
+    capability net_admin,  # needed?; TODO
+    capability sys_resource,
+
+    ptrace (read), # confine?; TODO
+
+    /dev/tty rw,
+
+    owner @{PROC}/@{pid}/stat r,
+
+    /{,usr/}bin/{,da,ba}sh  mr,
+    /{,usr/}bin/systemctl   rix,
+    /{,usr/}bin/basename    rix,
+    /{,usr/}bin/systemd-tty-ask-password-agent rix,
+
+    /{,var/}run/systemd/ask-password{,-block}/{,**} r,
+
+    include if exists <local/pihole_service>
+  }
+
+  /{,usr/}bin/killall rCx,
+  profile killall /{,usr/}bin/killall {
+    /{,usr/}bin/killall mr,
+    include <abstractions/base>
+
+    capability sys_ptrace,
+
+    ptrace (read),  # TODO
+
+    @{PROC}/ r,
+    @{PROC}/@{pid}/stat r,
+
+    include if exists <local/pihole_killall>
+  }
+
+  /{,usr/}bin/lsof rCx,
+  profile lsof /{,usr/}bin/lsof flags=(attach_disconnected) {
+    /{,usr/}bin/lsof mr,
+    include <abstractions/base>
+    include <abstractions/nameservice-strict>
+
+    capability dac_read_search,
+    capability sys_ptrace,
+    ptrace (read),  # unconfined, tighten later; TODO
+
+    deny / r,
+
+    owner @{PROC}/@{pid}/fdinfo/[0-9]* r,
+    owner @{PROC}/@{pid}/net/* r,
+          @{PROC}/ r,
+          @{PROC}/locks r,
+          @{PROC}/@{pid}/stat r,
+          @{PROC}/@{pid}/fd/ r,
+
+    include if exists <local/pihole_lsof>
+  }
+
+  include if exists <local/pihole>
+}
+
+profile pihole_updatecheck /opt/pihole/updatecheck.sh {
+  /opt/pihole/updatecheck.sh r,
+  include <abstractions/base>
+  include <abstractions/openssl>
+  include <abstractions/ssl_certs>
+  include <abstractions/nameservice-strict>
+
+  capability dac_override,
+
+  @{ETC_DIRS}/pihole/{,**} rw,
+
+  /dev/tty rw,
+
+  /{,usr/}bin/env       mr,
+  /{,usr/}bin/{,da,ba}sh rix,
+  /{,usr/}bin/sleep      rix,
+  /{,usr/}bin/sed        rix,
+  /{,usr/}bin/chmod      rix,
+  /{,usr/}bin/curl       rix,    # TODO?
+
+  @{FTL_BINS} rPx,
+
+#  owner /tmp/tmp.*.phgpb                 rw,
+#  owner /tmp/tmp.??????????/pihole-FTL-* rw,
+
+  /{,usr/}bin/git rPx -> pihole_git,
+
+  include if exists <local/pihole_updatecheck>
+}
+
+profile pihole_query /opt/pihole/query.sh {
+  /opt/pihole/query.sh r,
+  include <abstractions/base>
+  include <abstractions/nameservice-strict>
+
+  capability dac_override,  # sqlite3
+
+  /dev/tty rw,
+
+  @{ETC_DIRS}/pihole/ r,
+  @{ETC_DIRS}/pihole/pihole-FTL.conf r,
+  @{ETC_DIRS}/pihole/gravity{,_old}.db{,_temp}{,-journal} rwk,
+  /opt/pihole/COL_TABLE r,
+
+  /{,usr/}bin/env       mr,
+  /{,usr/}bin/{,da,ba}sh rix,
+  /{,usr/}bin/sed        rix,
+  /{,usr/}bin/sqlite3    rix,
+  /{,usr/}bin/{,e}grep   rix,
+  /{,usr/}bin/tput       rix,
+
+  include if exists <local/pihole_query>
+}
+
+profile pihole_logflush /opt/pihole/piholeLogFlush.sh {
+  /opt/pihole/piholeLogFlush.sh r,
+  include <abstractions/base>
+  include <abstractions/nameservice-strict>
+
+  capability dac_override,
+  capability fsetid,
+  capability chown,
+
+  /dev/tty rw,
+
+  @{ETC_DIRS}/pihole/ r,
+  @{ETC_DIRS}/pihole/pihole-FTL.conf r,
+  @{ETC_DIRS}/pihole/pihole-FTL.db{,-journal} rwk,
+  /opt/pihole/COL_TABLE r,
+
+  /{,usr/}bin/env       mr,
+  /{,usr/}bin/{,da,ba}sh rix,
+  /{,usr/}bin/sqlite3    rix,
+  /{,usr/}bin/sed        rix,
+  /{,usr/}bin/sleep      rix,
+  /{,usr/}bin/tput       rix,
+
+  /{,usr/}sbin/logrotate rPUx,
+
+  /{,usr/}bin/sudo  rCx,
+  profile sudo /{,usr/}bin/sudo {
+    /{,usr/}bin/sudo  mr,
+    include <abstractions/base>
+    include <abstractions/nameservice-strict>
+    include <abstractions/wutmp>
+
+    capability sys_resource,
+    capability setuid,
+    capability setgid,
+    capability audit_write,
+
+    /dev/tty rw,
+
+    /etc/sudo.conf r,
+    /etc/sudoers r,
+    /etc/sudoers.d/{,*} r,
+    /etc/pam.d/* r,
+    /etc/login.defs r,
+    /etc/shadow r,
+
+    owner @{PROC}/@{pid}/stat r,
+    owner @{PROC}/@{pid}/fd/ r,
+
+    @{PIH_BINS} rPx,
+
+    include if exists <local/pihole_logflush_sudo>
+  }
+
+  include if exists <local/pihole_logflush>
+}
+
+profile pihole_arptable /opt/pihole/piholeARPTable.sh {
+  /opt/pihole/piholeARPTable.sh r,
+  include <abstractions/base>
+  include <abstractions/nameservice-strict>
+
+  capability dac_override,
+  capability fsetid,
+  capability chown,
+
+  /dev/tty rw,
+
+  @{ETC_DIRS}/pihole/ r,
+  @{ETC_DIRS}/pihole/pihole-FTL.conf r,
+  @{ETC_DIRS}/pihole/pihole-FTL.db{,-journal} rwk,
+  /opt/pihole/COL_TABLE r,
+
+  /{,usr/}bin/env       mr,
+  /{,usr/}bin/{,da,ba}sh rix,
+  /{,usr/}bin/sed        rix,
+  /{,usr/}bin/tput       rix,
+  /{,usr/}bin/sqlite3    rix,
+
+  include if exists <local/pihole_arptable>
+}
+
+profile pihole_chronometer /opt/pihole/chronometer.sh {
+  /opt/pihole/chronometer.sh r,
+  include <abstractions/base>
+
+  /dev/tty rw,
+
+  @{ETC_DIRS}/pihole/setupVars.conf r,
+  /opt/pihole/COL_TABLE r,
+
+  /{,usr/}bin/env       mr,
+  /{,usr/}bin/{,da,ba}sh rix,
+  /{,usr/}bin/cat        rix,
+  /{,usr/}bin/clear      rix,
+  /{,usr/}bin/cut        rix,
+  /{,usr/}bin/df         rix,
+  /{,usr/}bin/{,e}grep   rix,
+  /{,usr/}bin/head       rix,
+  /{,usr/}bin/hostname   rix,
+  /{,usr/}bin/ip         rix,
+  /{,usr/}bin/ps         rix,
+  /{,usr/}bin/sed        rix,
+  /{,usr/}bin/sleep      rix,
+  /{,usr/}bin/stty       rix,
+  /{,usr/}bin/wc         rix,
+  /{,usr/}bin/tput       rix,
+  /{,usr/}bin/{,m,g}awk  rix,
+
+  @{PIH_BINS}            rPx,
+
+  /sys/devices/virtual/thermal/thermal_zone[0-9]*/temp r,
+  /sys/devices/system/cpu/cpufreq/policy[0-9]*/scaling_cur_freq r,
+
+  # ps
+  @{PROC}/ r,
+  @{PROC}/@{pid}/stat r,
+  @{PROC}/sys/kernel/osrelease r,
+
+  capability sys_ptrace,
+  ptrace (read),  # TODO
+
+  # df
+  / r,
+  owner @{PROC}/@{pid}/mountinfo r,
+
+  # cut
+  @{PROC}/uptime r,
+  @{PROC}/loadavg r,
+
+  # cat
+  /{,var/}run/pihole-FTL.port r,
+
+  include if exists <local/pihole_chronometer>
+}
+
+profile pihole_version /opt/pihole/version.sh {
+  /opt/pihole/version.sh r,
+  include <abstractions/base>
+
+  /dev/tty rw,
+
+  capability dac_override,  # deny?; TODO
+
+  @{ETC_DIRS}/pihole/setupVars.conf r,
+  @{ETC_DIRS}/.pihole/{,**} r,
+  @{WWW_PATHS}/html/admin/{,**} r,
+
+  /{,usr/}bin/env       mr,
+  /{,usr/}bin/{,da,ba}sh rix,
+  /{,usr/}bin/curl       rix,   # TODO
+  /{,usr/}bin/{,m,g}awk  rix,
+
+  /{,usr/}bin/git rPx -> pihole_git,
+  @{FTL_BINS}     rPx,  # narrow down?; TODO
+
+  include if exists <local/pihole_version>
+}
+
+profile pihole_un-install @{INSTALL_BINS} {
+  @{INSTALL_BINS} r,
+  include <abstractions/base>
+
+  @{ETC_DIRS}/pihole/{,**} rwl,
+  @{ETC_DIRS}/.pihole/{,**} rwl,
+  @{WWW_PATHS}/html/admin/{,**} rwl,
+  @{WWW_PATHS}/html/pihole/{,**} rwl,
+  /opt/pihole/{,**} rw,
+
+  /{,usr/}bin/env       mr,
+  /{,usr/}bin/{,da,ba}sh rix,
+  /{,usr/}bin/which      rix,
+  /{,usr/}bin/uname      rix,
+  /{,usr/}bin/tr         rix,
+  /{,usr/}bin/tput       rix,
+  /{,usr/}bin/sed        rix,
+  /{,usr/}bin/{,m,g}awk  rix,
+  /{,usr/}bin/grep       rix,
+
+  @{FTL_BINS}            rPx,
+  /{,usr/}bin/apt-get    rPx -> pihole_apt,
+
+  include if exists <local/pihole_un-install>
+}
+
+profile pihole_gravity @{GRAVITY_BINS} {
+  @{GRAVITY_BINS} r,
+  include <abstractions/base>
+  include <abstractions/nameservice-strict>
+  include <abstractions/openssl>
+
+  capability dac_override,
+  capability fsetid,
+  capability chown,
+  capability fowner,
+
+  owner /{,var/}tmp/tmp.??????????.gravity rw,
+  owner /{,var/}tmp/tmp.??????????.phgpb rw,
+  owner /{,var/}tmp/etilqs_* rw,
+
+  @{ETC_DIRS}/pihole/           rw,
+  @{ETC_DIRS}/pihole/{,**}      r,
+  @{ETC_DIRS}/pihole/list.*     rw,
+  @{ETC_DIRS}/pihole/local.list rw,
+  @{ETC_DIRS}/pihole/gravity{,_old}.db{,_temp}{,-journal} rwk,
+  @{ETC_DIRS}/.pihole/{,**}     r,
+  /opt/pihole/COL_TABLE         r,
+
+        @{PROC}/ r,
+        @{PROC}/filesystems r,
+        @{PROC}/uptime r,
+        @{PROC}/sys/kernel/osrelease r,
+        @{PROC}/@{pid}/cmdline r,
+  owner @{PROC}/@{pid}/task/[0-9]*/comm rw,
+
+  /tmp/ r, # needed?; TODO
+
+  /dev/tty rw,
+
+  /{,usr/}bin/env       mr,
+  /{,usr/}bin/{,da,ba}sh rix,
+  /{,usr/}bin/sed        rix,
+  /{,usr/}bin/head       rix,
+  /{,usr/}bin/tr         rix,
+  /{,usr/}bin/tput       rix,
+  /{,usr/}bin/timeout    rix,
+  /{,usr/}bin/stat       rix,
+  /{,usr/}bin/sqlite3    rix,
+  /{,usr/}bin/rm         rix,
+  /{,usr/}bin/mv         rix,
+  /{,usr/}bin/{,m,g}awk  rix,
+  /{,usr/}bin/head       rix,
+  /{,usr/}bin/{,e}grep   rix,
+  /{,usr/}bin/dirname    rix,
+  /{,usr/}bin/chown      rix,
+  /{,usr/}bin/chmod      rix,
+  /{,usr/}bin/cat        rix,
+  /{,usr/}bin/mktemp     rix,
+  /{,usr/}bin/getent     rix,
+  /{,usr/}bin/pgrep      rix,
+  /{,usr/}bin/dig        rix,
+  /{,usr/}bin/sha[0-9]*sum rix,
+
+  @{PIH_BINS} rPx,
+
+  /{,usr/}bin/curl rCx,
+  profile curl /{,usr/}bin/curl {
+    /{,usr/}bin/curl mr,
+    include <abstractions/base>
+    include <abstractions/nameservice-strict>
+    include <abstractions/openssl>
+    include <abstractions/ssl_certs>
+
+    owner /{,var/}tmp/tmp.??????????.phgpb rw,
+
+    @{ETC_DIRS}/pihole/*.{txt,list} r,
+
+    include if exists <local/pihole_gravity_curl>
+  }
+
+  include if exists <local/pihole_gravity>
+}
+
+profile pihole_list /opt/pihole/list.sh {
+  /opt/pihole/list.sh r,
+  include <abstractions/base>
+  include <abstractions/nameservice-strict>
+
+  capability dac_override,
+  capability fsetid,
+  capability chown,
+
+  @{ETC_DIRS}/pihole/{,**} r,
+  @{ETC_DIRS}/pihole/pihole-FTL.conf r,
+  @{ETC_DIRS}/pihole/gravity{,_old}.db{,_temp}{,-journal} rwk,
+  /opt/pihole/COL_TABLE r,
+
+  /dev/tty rw,
+
+  /{,usr/}bin/env       mr,
+  /{,usr/}bin/{,da,ba}sh rix,
+  /{,usr/}bin/{,e}grep   rix,
+  /{,usr/}bin/sqlite3    rix,
+  /{,usr/}bin/tput       rix,
+
+  @{PIH_BINS} rPx,
+
+  include if exists <local/pihole_list>
+}
+
+profile pihole_git {
+  /{,usr/}bin/git mr,
+  include <abstractions/base>
+  include <abstractions/ssl_certs>
+
+  @{ETC_DIRS}/.pihole/{,**} rwl,
+  @{WWW_PATHS}/html/admin/.git/{,**} rwl,
+  @{WWW_PATHS}/html/admin/{,**} r,
+
+  /{,usr/}bin/env         mr,
+  /{,usr/}bin/{,da,ba}sh   rix,
+  /{,usr/}lib/git-core/git rix,
+
+  include if exists <local/pihole_git>
+}
+
+profile pihole_ldd {
+  /{,usr/}bin/ldd r,
+  include <abstractions/base>
+
+  /dev/tty rw,
+
+  /{,usr/}bin/{,da,ba}sh mr,
+
+  /{,usr/}lib/@{multiarch}/ld{,32,64}-*.so rix,
+  /{,usr/}bin/ls rix,
+
+  include if exists <local/pihole_ldd>
+}

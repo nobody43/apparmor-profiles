@@ -1,0 +1,62 @@
+# vim:syntax=apparmor
+
+include <tunables/global>
+
+# change in local
+@{ETC_DIRS} = /etc /var/local
+@{FTL_BINS} = /usr/bin/pihole_FTL /srv/bin/pihole-FTL
+
+profile pihole-FTL @{FTL_BINS} {
+  @{FTL_BINS} mr,
+  include <abstractions/base>
+  include <abstractions/nameservice>
+
+  capability sys_nice,
+
+  signal (receive) set=(hup,rtmin+2) peer=pihole,
+
+  @{PROC}/@{pid}/fd/ r,
+
+  owner /dev/shm/FTL-* rw,
+
+  @{ETC_DIRS}/pihole/{,*}             r,
+  @{ETC_DIRS}/pihole/*.db{,-journal}  rwk,
+  @{ETC_DIRS}/dnsmasq.conf            r,
+  @{ETC_DIRS}/dnsmasq.d/{,*}          r,
+
+  owner /{,var/}run/dnsmasq.pid     rw,
+  owner /{,var/}run/pihole-FTL.pid  rw,
+  owner /{,var/}run/pihole/FTL.sock rw,
+  owner /{,var/}run/pihole-FTL.port rw,
+
+  /var/log/pihole.log      rw,
+  /var/log/pihole-FTL.log  rw,
+  /var/log/pihole/{,*.log} rw,
+
+  /{,usr/}bin/dash Cx,
+  profile dash /{,usr/}bin/dash {
+    /{,usr/}bin/dash mr,
+    include <abstractions/base>
+
+    /{,usr/}bin/ip rix,
+
+    /var/log/pihole.log rw,
+
+    # ip
+    /etc/iproute2/group r,
+
+    include if exists <local/usr.bin.pihole-FTL_dash>
+  }
+
+  /{,usr/}bin/ip Cx,
+  profile ip /{,usr/}bin/ip {
+    /{,usr/}bin/ip mr,
+    include <abstractions/base>
+
+    include if exists <local/usr.bin.pihole-FTL_ip>
+  }
+
+  include if exists <local/usr.bin.pihole-FTL>
+}
+
+include if exists <local/tunables/3rd/myvars>
