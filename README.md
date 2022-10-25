@@ -1,4 +1,6 @@
 # apparmor-profiles
+This repository is an experimental downstream of [apparmor.d](https://github.com/roddhjav/apparmor.d) project.
+
 ## Prerequisites
 ```
 # apt install apparmor-utils
