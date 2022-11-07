@@ -5,9 +5,9 @@
 include <tunables/global>
 
 # change in local
-@{ETC_DIRS} = /etc /var/local/etc
-@{FTL_BINS} = /{,usr/}bin/pihole-FTL
-@{PIH_BINS} = /{,usr/}{,local/}bin/pihole
+@{ETC_DIRS}  = /etc /var/local/etc
+@{FTL_BINS}  = /{,usr/}bin/pihole-FTL
+@{PIH_BINS}  = /{,usr/}{,local/}bin/pihole
 
 profile pihole-FTL @{FTL_BINS} {
   @{FTL_BINS} mr,
@@ -47,6 +47,7 @@ profile pihole-FTL @{FTL_BINS} {
   owner /tmp/sh-thd.?????? r,
   owner /tmp/tmp.*.gravity rw,
   owner /var/tmp/etilqs_* rw,
+  owner /tmp/pihole_temp.?????? rw,
 
   deny /apparmor/.null rw,
   deny /dev/pts/[0-9]* rw,
