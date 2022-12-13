@@ -1,0 +1,83 @@
+# vim:syntax=apparmor
+
+# WARNING! Could break the DB! BACKUP regularly!
+
+include <tunables/global>
+
+# change in local
+@{ETC_DIRS}  = /etc /var/local/etc
+@{FTL_BINS}  = /{,usr/}bin/pihole-FTL
+@{PIH_BINS}  = /{,usr/}{,local/}bin/pihole
+
+profile pihole-FTL @{FTL_BINS} {
+  @{FTL_BINS} mr,
+  include <abstractions/base>
+  include <abstractions/nameservice>
+
+  capability sys_nice,
+  capability fowner,
+  capability fsetid,
+  capability chown,
+  capability setgid,
+  capability setuid,
+  capability dac_override,
+
+  signal (receive) set=(hup,rtmin+2) peer=pihole,
+
+        @{PROC}/loadavg r,
+        @{PROC}/@{pid}/fd/ r,
+
+  owner /dev/shm/FTL-* rw,
+
+  @{ETC_DIRS}/pihole/{,*}             r,
+  @{ETC_DIRS}/pihole/*.db* rwk,
+  @{ETC_DIRS}/.pihole/advanced/Templates/*.db.sql r,
+  @{ETC_DIRS}/dnsmasq.conf            r,
+  @{ETC_DIRS}/dnsmasq.d/{,*}          r,
+
+  /{,var/}run/dnsmasq.pid     rw,
+  /{,var/}run/pihole-FTL.pid  rw,
+  /{,var/}run/pihole/FTL.sock rw,
+  /{,var/}run/pihole-FTL.port rw,
+
+  /var/log/pihole.log      rw,
+  /var/log/pihole-FTL.log  rw,
+  /var/log/pihole/{,*.log} rw,
+
+  owner /tmp/sh-thd.?????? r,
+  owner /tmp/tmp.*.gravity rw,
+  owner /var/tmp/etilqs_* rw,
+  owner /tmp/pihole_temp.?????? rw,
+
+  deny /apparmor/.null rw,
+  deny /dev/pts/[0-9]* rw,
+  deny /dev/pts/ r,
+
+  /{,usr/}bin/dash rCx,
+  profile dash /{,usr/}bin/dash {
+    /{,usr/}bin/dash mr,
+    include <abstractions/base>
+
+    /{,usr/}bin/ip rix,
+
+    /var/log/pihole.log rw,
+    /var/log/pihole/*.log rw,
+
+    # ip
+    /etc/iproute2/group r,
+
+    include if exists <local/pihole-FTL_dash>
+  }
+
+  /{,usr/}bin/ip rCx,
+  profile ip /{,usr/}bin/ip {
+    /{,usr/}bin/ip mr,
+    include <abstractions/base>
+
+    include if exists <local/pihole-FTL_ip>
+  }
+
+  include if exists <local/pihole-FTL>
+}
+
+include if exists <local/tunables/3rd/myvars>
