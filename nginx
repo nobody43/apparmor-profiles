@@ -1,0 +1,47 @@
+# SPDX-License-Identifier: GPL-2.0-only
+
+@{WEB_ROOTS} = /srv/www /var/www   # changeme
+
+include <tunables/global>
+
+profile nginx /{,usr/}{,s}bin/nginx {
+  include <abstractions/base>
+  include <abstractions/openssl>
+  include <abstractions/nis>
+  include <abstractions/apache2-common>
+
+  @{WEB_ROOTS}/** r,
+
+  /{,usr/}{,s}bin/nginx mrix,
+
+  capability net_bind_service,
+  capability dac_override,
+  capability dac_read_search,
+  capability setgid,
+  capability setuid,
+  capability chown,
+
+  /etc/nginx/** r,
+
+  owner @{PROC}/@{pid}/auxv r,
+
+  /{,var/}run/nginx.pid{,.oldbin} rw,
+  /{,var/}run/php/php{5,7,8}.[0-9]-fpm*.sock rw,
+
+  /var/lib/nginx/** rw,
+  /var/log/nginx/* w,
+
+  /usr/share/nginx/** r,
+
+  # phpmyadmin
+       /usr/share/phpmyadmin/** r,
+  deny /usr/share/phpmyadmin/setup/** r,   # interferes with installation
+
+  # Zabbix
+  /etc/zabbix/nginx.conf r,
+  /usr/share/zabbix/** r,
+
+  include if exists <local/nginx>
+}
+
+# vim:syntax=apparmor
